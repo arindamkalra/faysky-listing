@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FaceSky Listings</title>
+<style>
+  :root{
+    --cream:#faf6ef;
+    --warm-white:#fffdf9;
+    --charcoal:#2b2622;
+    --brown:#6b5a47;
+    --accent:#b5793a;
+    --accent-dark:#8f5e2a;
+    --green:#5a7a5c;
+    --border:#e8ddc9;
+    --shadow: 0 4px 14px rgba(60,45,20,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Georgia','Iowan Old Style', serif;
+    background:var(--cream);
+    color:var(--charcoal);
+    line-height:1.5;
+  }
+  header{
+    background:linear-gradient(135deg,#2b2622,#3d342b);
+    color:var(--warm-white);
+    padding:48px 24px 40px;
+    text-align:center;
+  }
+  header .brand{
+    font-size:2.4rem;
+    letter-spacing:1px;
+    font-weight:600;
+    margin:0;
+  }
+  header .brand span{ color:var(--accent); }
+  header .tagline{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:0.95rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:#cfc3ad;
+    margin-top:8px;
+  }
+  header .sub{
+    margin-top:18px;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:0.95rem;
+    color:#e6dcc8;
+    max-width:560px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  main{
+    max-width:1080px;
+    margin:0 auto;
+    padding:48px 24px 80px;
+  }
+  .section-title{
+    font-size:1.6rem;
+    font-weight:600;
+    margin:0 0 6px;
+    color:var(--charcoal);
+  }
+  .section-sub{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:0.88rem;
+    color:var(--brown);
+    margin:0 0 24px;
+  }
+  .section + .section{ margin-top:56px; }
+  .badge{
+    display:inline-block;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:0.7rem;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    padding:4px 10px;
+    border-radius:20px;
+    font-weight:600;
+  }
+  .badge.active{ background:#e8f0e6; color:var(--green); }
+  .badge.coming{ background:#fbeedd; color:var(--accent-dark); }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:20px;
+  }
+  .card{
+    background:var(--warm-white);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:20px;
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(60,45,20,0.12); }
+  .card .addr{
+    font-size:1.15rem;
+    font-weight:600;
+    color:var(--charcoal);
+    margin:0;
+  }
+  .card .meta{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:0.85rem;
+    color:var(--brown);
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .card .price{
+    font-size:1.1rem;
+    font-weight:700;
+    color:var(--accent-dark);
+  }
+  .card .agent{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:0.8rem;
+    color:var(--brown);
+  }
+  .card a.zillow-btn{
+    margin-top:auto;
+    display:inline-block;
+    text-align:center;
+    background:var(--accent);
+    color:#fff;
+    text-decoration:none;
+    padding:10px 14px;
+    border-radius:6px;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:0.85rem;
+    font-weight:600;
+    letter-spacing:0.3px;
+  }
+  .card a.zillow-btn:hover{ background:var(--accent-dark); }
+  .empty-msg, .loading-msg, .error-msg{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:0.9rem;
+    color:var(--brown);
+    padding:20px;
+    background:var(--warm-white);
+    border:1px dashed var(--border);
+    border-radius:8px;
+  }
+  .error-msg{ color:#a14747; border-color:#e0bcbc; background:#fdf3f3; }
+  footer{
+    text-align:center;
+    padding:28px 24px 40px;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:0.78rem;
+    color:var(--brown);
+  }
+  .refresh-note{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:0.75rem;
+    color:#9a8c74;
+    text-align:center;
+    margin-top:-8px;
+    margin-bottom:32px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1 class="brand">Face<span>Sky</span> Listings</h1>
+  <div class="tagline">Skyari LLC Property Group</div>
+  <p class="sub">Thoughtfully renovated, move-in ready homes across the Fayetteville &amp; Sandhills region of North Carolina.</p>
+</header>
+
+<main>
+  <div class="refresh-note" id="lastUpdated">Loading current listings&hellip;</div>
+
+  <section class="section">
+    <h2 class="section-title">Currently For Sale <span class="badge active">On Zillow</span></h2>
+    <p class="section-sub">These homes are listed and actively for sale. Click through to view full details on Zillow.</p>
+    <div class="grid" id="activeGrid"><div class="loading-msg">Loading listings&hellip;</div></div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Coming Soon <span class="badge coming">Not Yet on Zillow</span></h2>
+    <p class="section-sub">Fully renovated and nearly ready &mdash; these homes will be listed soon.</p>
+    <div class="grid" id="comingGrid"><div class="loading-msg">Loading listings&hellip;</div></div>
+  </section>
+</main>
+
+<footer>
+  &copy; <span id="year"></span> FaceSky Listings &middot; A Skyari LLC property brand
+</footer>
+
+<script>
+/* ============================================================
+   FaceSky Listings — Data Configuration
+   ============================================================
+   This page is built to read the "Sale Pipeline" tab of the
+   Fund Management Google Sheet.
+
+   TO CONNECT LIVE DATA (when your backend/API is ready):
+   Set SHEET_CSV_URL below to a URL that returns the FULL
+   "Sale Pipeline" tab as CSV text (same layout as today: one
+   tab containing marker rows "ACTIVE LISTED" and
+   "READY FOR LISTING" followed by their data rows).
+
+   Two common ways to produce that URL:
+   1. Google Sheets "Publish to web" (File > Share > Publish to
+      web > select the Sale Pipeline tab > CSV) — gives you a
+      public CSV URL you can paste directly below.
+   2. Your own API/Apps Script endpoint that returns the same
+      tab content as raw CSV text (with CORS enabled).
+
+   Until SHEET_CSV_URL is set, this page falls back to the
+   FALLBACK_DATA snapshot below (captured from the sheet on
+   22 Jun 2026) so the page still works today.
+
+   EXPECTED COLUMNS (per row, in the live sheet):
+     Property Address | Purchase Date | Listed Date | Listed Price | Agent | Zillow Link
+
+   NOTE: "Zillow Link" is a column Arindam is adding to the
+   sheet. Until it's populated, the page auto-builds a Zillow
+   *search* link from the address as a placeholder.
+    ============================================================
+
+   GITHUB PAGES SETUP (what you're doing now):
+   Hosting this HTML on GitHub Pages does NOT change Google's
+   permissions on the sheet — the browser visiting your GitHub
+   page does the fetching, so the SHEET ITSELF must be set to
+   "Anyone with the link can view" in Google Sheets (Share >
+   General access > Anyone with the link > Viewer). Once that's
+   set, the URL below works with no further setup — no Apps
+   Script, no API key, no backend needed.
+
+   The URL below uses Google's built-in CSV export endpoint for
+   a single tab, built from your sheet ID + the Sale Pipeline
+   tab's gid (1493260937, taken from the link you shared:
+   .../edit?gid=1493260937).
+   ============================================================ */
+
+  const SHEET_ID = "1aTJibmrbfTcnKfuKwUHKy2V7im06pj8G";
+  const SALE_PIPELINE_GID = "1493260937";
+  const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${SALE_PIPELINE_GID}`;
+  // To fall back to embedded snapshot data instead, set SHEET_CSV_URL = "";
+
+  const FALLBACK_DATA = {
+    lastUpdated: "1 May 2026 (sheet snapshot)",
+    active: [
+      { address: "5917 Sunday Dr, Fayetteville, NC", purchaseDate: "31 October 2025", listedDate: "7 May 2026", listedPrice: "$325,000", agent: "Jessica", zillowLink: "" },
+      { address: "518 S Cool Spring St, Fayetteville, NC", purchaseDate: "", listedDate: "6 May 2026", listedPrice: "$170,000", agent: "Jessica Deshotel", zillowLink: "" },
+      { address: "946 Rancho Dr, Fayetteville, NC", purchaseDate: "29 January 2026", listedDate: "1 May 2026", listedPrice: "$249,900", agent: "Sky", zillowLink: "" },
+      { address: "217 Teague St, Fayetteville, NC", purchaseDate: "23 July 2024", listedDate: "22 May 2026", listedPrice: "$159,000", agent: "Jessica Deshotel", zillowLink: "" },
+      { address: "2259 Lake Upchurch, Fayetteville, NC", purchaseDate: "22 January 2026", listedDate: "12 June 2026", listedPrice: "$310,000", agent: "Jessica Deshotel", zillowLink: "" }
+    ],
+    comingSoon: [
+      { address: "209 Rose St, Fayetteville, NC", purchaseDate: "", agent: "" },
+      { address: "6911 Radnor Street, Fayetteville, NC", purchaseDate: "4 December 2024", agent: "" },
+      { address: "1454 Thelbert Dr, Fayetteville, NC", purchaseDate: "23 March 2026", agent: "" },
+      { address: "506 Eaton St (7 Stars)", purchaseDate: "", agent: "" },
+      { address: "1320 Spring Ave, Fayetteville, NC", purchaseDate: "", agent: "Mia" }
+    ]
+  };
+
+  function zillowSearchUrl(address){
+    return "https://www.zillow.com/homes/" + encodeURIComponent(address.replace(/,/g,'')) + "_rb/";
+  }
+
+  function escapeHtml(str){
+    return (str || "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function renderActive(rows){
+    const grid = document.getElementById('activeGrid');
+    if (!rows.length){ grid.innerHTML = '<div class="empty-msg">No active listings right now. Check back soon.</div>'; return; }
+    grid.innerHTML = rows.map(r => `
+      <div class="card">
+        <p class="addr">${escapeHtml(r.address)}</p>
+        <div class="meta">
+          ${r.listedPrice ? `<span class="price">${escapeHtml(r.listedPrice)}</span>` : ''}
+          ${r.listedDate ? `<span>Listed ${escapeHtml(r.listedDate)}</span>` : ''}
+          ${r.agent ? `<span class="agent">Agent: ${escapeHtml(r.agent)}</span>` : ''}
+        </div>
+        <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(r.zillowLink || zillowSearchUrl(r.address))}">View on Zillow</a>
+      </div>
+    `).join('');
+  }
+
+  function renderComingSoon(rows){
+    const grid = document.getElementById('comingGrid');
+    if (!rows.length){ grid.innerHTML = '<div class="empty-msg">No upcoming listings right now.</div>'; return; }
+    grid.innerHTML = rows.map(r => `
+      <div class="card">
+        <p class="addr">${escapeHtml(r.address)}</p>
+        <div class="meta">
+          ${r.purchaseDate ? `<span>Acquired ${escapeHtml(r.purchaseDate)}</span>` : ''}
+          ${r.agent ? `<span class="agent">Agent: ${escapeHtml(r.agent)}</span>` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function parseCsvLine(line){
+    // basic RFC4180-ish CSV parser for a single line
+    const out = [];
+    let cur = '', inQuotes = false;
+    for (let i=0;i<line.length;i++){
+      const c = line[i];
+      if (inQuotes){
+        if (c === '"'){
+          if (line[i+1] === '"'){ cur += '"'; i++; }
+          else inQuotes = false;
+        } else cur += c;
+      } else {
+        if (c === '"') inQuotes = true;
+        else if (c === ','){ out.push(cur); cur=''; }
+        else cur += c;
+      }
+    }
+    out.push(cur);
+    return out;
+  }
+
+  function parseSheetCsv(csvText){
+    const lines = csvText.split(/\r?\n/).filter(l => l.trim().length);
+    let mode = null;
+    const active = [];
+    const comingSoon = [];
+    for (const line of lines){
+      const upper = line.toUpperCase();
+      if (upper.includes('ACTIVE LISTED')){ mode = 'active'; continue; }
+      if (upper.includes('READY FOR LISTING')){ mode = 'coming'; continue; }
+      if (upper.includes('LOTS FOR SALE') || upper.includes('SOLD') || upper.includes('UNDER CONTRACT')){ mode = null; continue; }
+      if (upper.startsWith('PROPERTY ADDRESS') || upper.includes(',PROPERTY ADDRESS,')) continue; // header row
+
+      const cols = parseCsvLine(line).map(c => c.trim());
+      if (mode === 'active'){
+        // expected: #, Address, PurchaseDate, ..., ListedDate, ListedPrice, Agent, ZillowLink
+        const address = cols[1];
+        if (!address) continue;
+        active.push({
+          address,
+          purchaseDate: cols[2] || '',
+          listedDate: cols[6] || '',
+          listedPrice: cols[7] || '',
+          agent: cols[8] || '',
+          zillowLink: cols[9] || ''
+        });
+      } else if (mode === 'coming'){
+        const address = cols[1];
+        if (!address) continue;
+        comingSoon.push({
+          address,
+          purchaseDate: cols[2] || '',
+          agent: cols[5] || ''
+        });
+      }
+    }
+    return { active, comingSoon };
+  }
+
+  function setLastUpdated(text){
+    document.getElementById('lastUpdated').textContent = 'Listings updated: ' + text;
+  }
+
+  async function loadListings(){
+    if (!SHEET_CSV_URL){
+      setLastUpdated(FALLBACK_DATA.lastUpdated + ' — live feed not yet connected');
+      renderActive(FALLBACK_DATA.active);
+      renderComingSoon(FALLBACK_DATA.comingSoon);
+      return;
+    }
+    try{
+      const res = await fetch(SHEET_CSV_URL, { cache: 'no-store' });
+      if (!res.ok) throw new Error('Fetch failed: ' + res.status);
+      const csvText = await res.text();
+      const { active, comingSoon } = parseSheetCsv(csvText);
+      setLastUpdated(new Date().toLocaleString());
+      renderActive(active);
+      renderComingSoon(comingSoon);
+    } catch (err){
+      console.error(err);
+      setLastUpdated('could not refresh — showing last known data');
+      renderActive(FALLBACK_DATA.active);
+      renderComingSoon(FALLBACK_DATA.comingSoon);
+    }
+  }
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+  loadListings();
+</script>
+
+</body>
+</html>
