@@ -296,10 +296,9 @@
       <div class="card">
         <p class="addr">${escapeHtml(r.address)}</p>
         <div class="meta">
-          ${r.purchaseDate ? `<span>Acquired ${escapeHtml(r.purchaseDate)}</span>` : ''}
-          ${r.agent ? `<span class="agent">Agent: ${escapeHtml(r.agent)}</span>` : ''}
+          <span>Under progress</span>
         </div>
-        <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(r.zillowLink || zillowSearchUrl(r.address))}">Search on Zillow</a>
+        <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(r.zillowLink || zillowSearchUrl(r.address))}">View on Zillow</a>
       </div>
     `).join('');
   }
