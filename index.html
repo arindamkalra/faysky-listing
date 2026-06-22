@@ -292,6 +292,71 @@
   }
   .steps-panel{ display:none; }
   .steps-panel.is-active{ display:block; }
+  .trust-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:18px;
+    margin-bottom:48px;
+  }
+  .trust-card{
+    background:var(--warm-white);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:22px 20px;
+    box-shadow:var(--shadow);
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+  }
+  .trust-card .icon{
+    width:38px;
+    height:38px;
+    flex-shrink:0;
+    border-radius:50%;
+    background:#f3ead9;
+    color:var(--accent-dark);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .trust-card .icon svg{ width:20px; height:20px; }
+  .trust-card .trust-title{
+    font-size:0.98rem;
+    font-weight:600;
+    color:var(--charcoal);
+    margin:0 0 4px;
+  }
+  .trust-card .trust-desc{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.85rem;
+    color:var(--brown);
+    margin:0;
+  }
+  @media (max-width:680px){
+    .trust-grid{
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+      margin-bottom:32px;
+    }
+    .trust-card{
+      flex-direction:column;
+      align-items:center;
+      text-align:center;
+      padding:12px 6px;
+      gap:6px;
+    }
+    .trust-card .icon{
+      width:30px;
+      height:30px;
+    }
+    .trust-card .icon svg{ width:16px; height:16px; }
+    .trust-card .trust-title{
+      font-size:0.72rem;
+      margin:0;
+      line-height:1.25;
+    }
+    .trust-card .trust-desc{ display:none; }
+  }
 </style>
 </head>
 <body>
@@ -302,6 +367,36 @@
 </header>
 
 <main>
+  <div class="trust-grid">
+    <div class="trust-card">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg>
+      </div>
+      <div>
+        <p class="trust-title">Move-in ready homes</p>
+        <p class="trust-desc">Every home is fully renovated and ready for you to move in from day one &mdash; no repairs, no surprises.</p>
+      </div>
+    </div>
+    <div class="trust-card">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/></svg>
+      </div>
+      <div>
+        <p class="trust-title">1-month home warranty</p>
+        <p class="trust-desc">We back our own work &mdash; every home comes with a one-month warranty from us, the renovator.</p>
+      </div>
+    </div>
+    <div class="trust-card">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5M12 17h.01"/></svg>
+      </div>
+      <div>
+        <p class="trust-title">Buy directly, save more</p>
+        <p class="trust-desc">Skip the markup &mdash; buying directly from us means better pricing and discounts you won't find elsewhere.</p>
+      </div>
+    </div>
+  </div>
+
   <div class="refresh-note" id="lastUpdated">Loading current listings&hellip;</div>
 
   <section class="section">
