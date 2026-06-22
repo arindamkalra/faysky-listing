@@ -292,6 +292,26 @@
   }
   .steps-panel{ display:none; }
   .steps-panel.is-active{ display:block; }
+  @media (max-width:680px){
+    .steps-grid{
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+    }
+    .step-card{
+      padding:12px 6px;
+      text-align:center;
+    }
+    .step-num{
+      font-size:1.1rem;
+      margin:0 0 4px;
+    }
+    .step-title{
+      font-size:0.72rem;
+      margin:0;
+      line-height:1.25;
+    }
+    .step-desc{ display:none; }
+  }
   .trust-grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
