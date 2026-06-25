@@ -98,6 +98,7 @@
   }
   .badge.active{ background:#e3edf2; color:#2c4257; }
   .badge.coming{ background:#f3ead9; color:var(--accent-dark); }
+  .badge.wip{ background:#edeaf5; color:#4a3d7a; }
   .grid{
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
@@ -449,6 +450,12 @@
     <div class="grid" id="comingGrid"><div class="loading-msg">Loading listings&hellip;</div></div>
   </section>
 
+  <section class="section">
+    <h2 class="section-title">Work In Progress <span class="badge wip">In Renovation</span></h2>
+    <p class="section-sub">These properties are currently being renovated and will be available for sale soon.</p>
+    <div class="grid" id="wipGrid"><div class="loading-msg">Loading listings&hellip;</div></div>
+  </section>
+
   <section class="howitworks">
     <h2 class="section-title">How It Works</h2>
     <p class="section-sub">Buy directly from us &mdash; a simple, transparent process from browse to keys.</p>
@@ -578,6 +585,17 @@
       { address: "1454 Thelbert Dr, Fayetteville, NC", purchaseDate: "23 March 2026", listedPrice: "", agent: "", zillowLink: "" },
       { address: "506 Eaton St (7 Stars)", purchaseDate: "", listedPrice: "", agent: "", zillowLink: "" },
       { address: "1320 Spring Ave, Fayetteville, NC", purchaseDate: "", listedPrice: "", agent: "Mia", zillowLink: "" }
+    ],
+    wip: [
+      { address: "2340 Sunnyside School Rd, Fayetteville, NC 28312", purchaseDate: "" },
+      { address: "4332 South River School Road, Wade, NC 28395", purchaseDate: "" },
+      { address: "5156 Matt Hair Rd, Fayetteville, NC 28312", purchaseDate: "" },
+      { address: "1110 Martindale Drive, Fayetteville, NC 28304", purchaseDate: "" },
+      { address: "3135 James Dail Rd, Eastover, NC 28312", purchaseDate: "" },
+      { address: "1454 Thelbert Dr, Fayetteville, NC 28301", purchaseDate: "" },
+      { address: "4130 Knollwood Drive, Fayetteville, NC 28304", purchaseDate: "" },
+      { address: "201 Castle Creek Drive, Raeford, NC 28376", purchaseDate: "" },
+      { address: "4437 Virsalli Loop, Hope Mills, NC 28348", purchaseDate: "" }
     ]
   };
 
@@ -613,9 +631,23 @@
         <p class="addr">${escapeHtml(r.address)}</p>
         <div class="meta">
           ${r.listedPrice ? `<span class="price">${escapeHtml(r.listedPrice)}</span>` : ''}
-          <span>Under progress</span>
+          <span>Upcoming listing</span>
         </div>
         <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(r.zillowLink || zillowSearchUrl(r.address))}">View on Zillow</a>
+      </div>
+    `).join('');
+  }
+
+  function renderWip(rows){
+    const grid = document.getElementById('wipGrid');
+    if (!rows.length){ grid.innerHTML = '<div class="empty-msg">No properties currently in renovation.</div>'; return; }
+    grid.innerHTML = rows.map(r => `
+      <div class="card">
+        <p class="addr">${escapeHtml(r.address)}</p>
+        <div class="meta">
+          ${r.purchaseDate ? `<span>Acquired ${escapeHtml(r.purchaseDate)}</span>` : ''}
+          <span>Renovation in progress</span>
+        </div>
       </div>
     `).join('');
   }
@@ -646,16 +678,17 @@
     let mode = null;
     const active = [];
     const comingSoon = [];
+    const wip = [];
     for (const line of lines){
       const upper = line.toUpperCase();
       if (upper.includes('ACTIVE LISTED')){ mode = 'active'; continue; }
       if (upper.includes('READY FOR LISTING')){ mode = 'coming'; continue; }
+      if (upper.includes('SALES INVENTORY')){ mode = 'wip'; continue; }
       if (upper.includes('LOTS FOR SALE') || upper.includes('SOLD') || upper.includes('UNDER CONTRACT')){ mode = null; continue; }
-      if (upper.startsWith('PROPERTY ADDRESS') || upper.includes(',PROPERTY ADDRESS,')) continue; // header row
+      if (upper.startsWith('PROPERTY ADDRESS') || upper.includes(',PROPERTY ADDRESS,')) continue;
 
       const cols = parseCsvLine(line).map(c => c.trim());
       if (mode === 'active'){
-        // expected: #, Address, PurchaseDate, ..., ListedDate, ListedPrice, Agent, ZillowLink
         const address = cols[1];
         if (!address) continue;
         active.push({
@@ -676,9 +709,16 @@
           agent: cols[5] || '',
           zillowLink: cols[6] || ''
         });
+      } else if (mode === 'wip'){
+        const address = cols[1];
+        if (!address) continue;
+        wip.push({
+          address,
+          purchaseDate: cols[2] || ''
+        });
       }
     }
-    return { active, comingSoon };
+    return { active, comingSoon, wip };
   }
 
   function setLastUpdated(text){
@@ -690,21 +730,24 @@
       setLastUpdated(FALLBACK_DATA.lastUpdated + ' — live feed not yet connected');
       renderActive(FALLBACK_DATA.active);
       renderComingSoon(FALLBACK_DATA.comingSoon);
+      renderWip(FALLBACK_DATA.wip);
       return;
     }
     try{
       const res = await fetch(SHEET_CSV_URL, { cache: 'no-store' });
       if (!res.ok) throw new Error('Fetch failed: ' + res.status);
       const csvText = await res.text();
-      const { active, comingSoon } = parseSheetCsv(csvText);
+      const { active, comingSoon, wip } = parseSheetCsv(csvText);
       setLastUpdated(new Date().toLocaleString());
       renderActive(active);
       renderComingSoon(comingSoon);
+      renderWip(wip);
     } catch (err){
       console.error(err);
       setLastUpdated('could not refresh — showing last known data');
       renderActive(FALLBACK_DATA.active);
       renderComingSoon(FALLBACK_DATA.comingSoon);
+      renderWip(FALLBACK_DATA.wip);
     }
   }
 
