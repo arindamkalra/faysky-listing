@@ -237,28 +237,27 @@
   .howitworks{
     margin-top:64px;
   }
-  .toggle-row{
+  .commission-banner{
     display:flex;
-    gap:10px;
-    margin-bottom:28px;
-  }
-  .toggle-btn{
-    flex:1;
+    align-items:center;
+    gap:12px;
+    margin-top:28px;
+    padding:16px 20px;
+    background:#f3ead9;
+    border:1px solid #e0ccaa;
+    border-radius:10px;
     font-family:'Open Sans',Arial,sans-serif;
-    font-size:0.95rem;
-    font-weight:600;
-    padding:14px 20px;
-    border-radius:8px;
-    border:1px solid var(--border);
-    background:var(--warm-white);
-    color:var(--brown);
-    cursor:pointer;
-    transition:background .15s ease, color .15s ease, border-color .15s ease;
+    font-size:0.92rem;
+    color:#6b5533;
   }
-  .toggle-btn.is-active{
-    background:var(--accent);
-    color:#fff;
-    border-color:var(--accent);
+  .commission-banner svg{
+    width:22px;
+    height:22px;
+    flex-shrink:0;
+    color:var(--accent-dark);
+  }
+  .commission-banner strong{
+    color:var(--accent-dark);
   }
   .steps-grid{
     display:grid;
@@ -290,8 +289,6 @@
     color:var(--brown);
     margin:0;
   }
-  .steps-panel{ display:none; }
-  .steps-panel.is-active{ display:block; }
   @media (max-width:680px){
     .steps-grid{
       grid-template-columns:repeat(4,1fr);
@@ -442,60 +439,34 @@
 
   <section class="howitworks">
     <h2 class="section-title">How It Works</h2>
-    <p class="section-sub">Choose the path that fits you best &mdash; buy a home outright, or move in now and build toward ownership over time.</p>
-    <div class="toggle-row">
-      <button type="button" class="toggle-btn is-active" data-panel="purchase">Direct Purchase</button>
-      <button type="button" class="toggle-btn" data-panel="rent">Rent to Own</button>
-    </div>
+    <p class="section-sub">Buy directly from us &mdash; a simple, transparent process from browse to keys.</p>
 
-    <div class="steps-panel is-active" id="panel-purchase">
-      <div class="steps-grid">
-        <div class="step-card">
-          <p class="step-num">01.</p>
-          <p class="step-title">Find Your Property</p>
-          <p class="step-desc">Browse our curated listings of pre-inspected homes across Fayetteville and Raeford &mdash; all vetted and ready for purchase.</p>
-        </div>
-        <div class="step-card">
-          <p class="step-num">02.</p>
-          <p class="step-title">Get Pre-Approved</p>
-          <p class="step-desc">Submit a simple application. No perfect credit needed &mdash; we work with a range of buyer profiles to get you started.</p>
-        </div>
-        <div class="step-card">
-          <p class="step-num">03.</p>
-          <p class="step-title">Make an Offer</p>
-          <p class="step-desc">Work with our team to negotiate and structure an offer at a fair, locked-in purchase price with full transparency.</p>
-        </div>
-        <div class="step-card">
-          <p class="step-num">04.</p>
-          <p class="step-title">Close &amp; Move In</p>
-          <p class="step-desc">Complete the purchase with our guided closing process and get the keys &mdash; the home is yours from day one.</p>
-        </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <p class="step-num">01.</p>
+        <p class="step-title">Find Your Property</p>
+        <p class="step-desc">Browse our curated listings of pre-inspected homes across Fayetteville and Raeford &mdash; all vetted and ready for purchase.</p>
+      </div>
+      <div class="step-card">
+        <p class="step-num">02.</p>
+        <p class="step-title">Get Pre-Approved</p>
+        <p class="step-desc">Submit a simple application. No perfect credit needed &mdash; we work with a range of buyer profiles to get you started.</p>
+      </div>
+      <div class="step-card">
+        <p class="step-num">03.</p>
+        <p class="step-title">Make an Offer</p>
+        <p class="step-desc">Work with our team to negotiate and structure an offer at a fair, locked-in purchase price with full transparency.</p>
+      </div>
+      <div class="step-card">
+        <p class="step-num">04.</p>
+        <p class="step-title">Close &amp; Move In</p>
+        <p class="step-desc">Complete the purchase with our guided closing process and get the keys &mdash; the home is yours from day one.</p>
       </div>
     </div>
 
-    <div class="steps-panel" id="panel-rent">
-      <div class="steps-grid">
-        <div class="step-card">
-          <p class="step-num">01.</p>
-          <p class="step-title">Apply</p>
-          <p class="step-desc">Submit a simple application &mdash; no perfect credit needed to get started with us.</p>
-        </div>
-        <div class="step-card">
-          <p class="step-num">02.</p>
-          <p class="step-title">Choose Your Home</p>
-          <p class="step-desc">Pick from our curated selection of quality, pre-inspected homes across Fayetteville and Raeford.</p>
-        </div>
-        <div class="step-card">
-          <p class="step-num">03.</p>
-          <p class="step-title">Move In &amp; Build Equity</p>
-          <p class="step-desc">A portion of every rent payment goes directly toward your future home purchase.</p>
-        </div>
-        <div class="step-card">
-          <p class="step-num">04.</p>
-          <p class="step-title">Buy When Ready</p>
-          <p class="step-desc">Purchase at your locked-in price whenever you feel financially prepared to own.</p>
-        </div>
-      </div>
+    <div class="commission-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/></svg>
+      <span>We offer <strong>4% buyer&rsquo;s agent commission</strong> &mdash; bring your agent and they get paid.</span>
     </div>
   </section>
 
@@ -728,15 +699,6 @@
   document.getElementById('year').textContent = new Date().getFullYear();
   loadListings();
 
-  const toggleBtns = document.querySelectorAll('.toggle-btn');
-  toggleBtns.forEach(btn => {
-    btn.addEventListener('click', function(){
-      toggleBtns.forEach(b => b.classList.remove('is-active'));
-      document.querySelectorAll('.steps-panel').forEach(p => p.classList.remove('is-active'));
-      btn.classList.add('is-active');
-      document.getElementById('panel-' + btn.dataset.panel).classList.add('is-active');
-    });
-  });
 
   const contactForm = document.getElementById('contactForm');
   if (contactForm){
