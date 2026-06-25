@@ -58,14 +58,18 @@
     margin-right:auto;
   }
   header .header-commission{
-    margin-top:18px;
+    margin-top:22px;
     font-family:'Open Sans',Arial,sans-serif;
-    font-size:0.85rem;
-    color:var(--accent);
+    font-size:1.05rem;
+    color:#e8c97a;
     letter-spacing:0.3px;
+    display:inline-block;
+    border:1px solid rgba(184,151,90,0.45);
+    padding:10px 22px;
+    border-radius:30px;
   }
   header .header-commission strong{
-    color:var(--accent);
+    color:#f0d68a;
     font-weight:700;
   }
   main{
@@ -392,7 +396,6 @@
 
 <header>
   <h1 class="brand">Fay<span>Sky</span> Homes</h1>
-  <p class="sub">Thoughtfully renovated, move-in ready homes across the Fayetteville and Raeford region of North Carolina.</p>
   <p class="header-commission">Bring your best buyers to us &mdash; we offer <strong>4% buyer&rsquo;s agent commission</strong></p>
 </header>
 
@@ -648,6 +651,7 @@
           ${r.purchaseDate ? `<span>Acquired ${escapeHtml(r.purchaseDate)}</span>` : ''}
           <span>Renovation in progress</span>
         </div>
+        <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(zillowSearchUrl(r.address))}">View on Zillow</a>
       </div>
     `).join('');
   }
