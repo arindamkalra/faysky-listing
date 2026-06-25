@@ -314,7 +314,7 @@
   }
   .trust-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
     gap:18px;
     margin-bottom:48px;
   }
@@ -354,7 +354,7 @@
   }
   @media (max-width:680px){
     .trust-grid{
-      grid-template-columns:repeat(3,1fr);
+      grid-template-columns:repeat(2,1fr);
       gap:8px;
       margin-bottom:32px;
     }
@@ -394,7 +394,7 @@
       </div>
       <div>
         <p class="trust-title">Move-in ready homes</p>
-        <p class="trust-desc">Every home is fully renovated and ready for you to move in from day one &mdash; no repairs, no surprises.</p>
+        <p class="trust-desc">Every home is fully renovated and ready from day one &mdash; no repairs, no surprises.</p>
       </div>
     </div>
     <div class="trust-card">
@@ -402,17 +402,26 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/></svg>
       </div>
       <div>
-        <p class="trust-title">1-month home warranty</p>
-        <p class="trust-desc">We back our own work &mdash; every home comes with a one-month warranty from us, the renovator.</p>
+        <p class="trust-title">3-month home warranty</p>
+        <p class="trust-desc">We back our own work &mdash; every home comes with a 3-month warranty covering all DDR repairs.</p>
       </div>
     </div>
     <div class="trust-card">
       <div class="icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5M12 17h.01"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
       </div>
       <div>
-        <p class="trust-title">Buy directly, save more</p>
-        <p class="trust-desc">Skip the markup &mdash; buying directly from us means better pricing and discounts you won't find elsewhere.</p>
+        <p class="trust-title">Independent inspection done</p>
+        <p class="trust-desc">Every home has already had a full independent inspection &mdash; reports available before you make an offer.</p>
+      </div>
+    </div>
+    <div class="trust-card">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      </div>
+      <div>
+        <p class="trust-title">No DD or closing costs</p>
+        <p class="trust-desc">No due diligence money required &mdash; and we cover full closing costs so you keep more cash at close.</p>
       </div>
     </div>
   </div>
@@ -420,7 +429,7 @@
   <div class="refresh-note" id="lastUpdated">Loading current listings&hellip;</div>
 
   <section class="section">
-    <h2 class="section-title">Currently For Sale <span class="badge active">On Zillow</span></h2>
+    <h2 class="section-title">Currently For Sale <span class="badge active">On MLS</span></h2>
     <p class="section-sub">These homes are listed and actively for sale. Click through to view full details on Zillow.</p>
     <div class="grid" id="activeGrid"><div class="loading-msg">Loading listings&hellip;</div></div>
   </section>
@@ -501,7 +510,7 @@
         </div>
         <div class="contact-row">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z" stroke="none"/><path d="M22 6 12 13 2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
-          <a href="mailto:manager@ncrei.org">manager@ncrei.org</a>
+          <a href="mailto:kkamineni@ragastech.com">kkamineni@ragastech.com</a>
         </div>
         <p>We're happy to answer questions, schedule a showing, or send more details on any property listed above.</p>
       </div>
@@ -581,11 +590,11 @@
       { address: "2259 Lake Upchurch, Fayetteville, NC", purchaseDate: "22 January 2026", listedDate: "12 June 2026", listedPrice: "$310,000", agent: "Jessica Deshotel", zillowLink: "" }
     ],
     comingSoon: [
-      { address: "209 Rose St, Fayetteville, NC", purchaseDate: "", agent: "", zillowLink: "" },
-      { address: "6911 Radnor Street, Fayetteville, NC", purchaseDate: "4 December 2024", agent: "", zillowLink: "" },
-      { address: "1454 Thelbert Dr, Fayetteville, NC", purchaseDate: "23 March 2026", agent: "", zillowLink: "" },
-      { address: "506 Eaton St (7 Stars)", purchaseDate: "", agent: "", zillowLink: "" },
-      { address: "1320 Spring Ave, Fayetteville, NC", purchaseDate: "", agent: "Mia", zillowLink: "" }
+      { address: "209 Rose St, Fayetteville, NC", purchaseDate: "", listedPrice: "", agent: "", zillowLink: "" },
+      { address: "6911 Radnor Street, Fayetteville, NC", purchaseDate: "4 December 2024", listedPrice: "", agent: "", zillowLink: "" },
+      { address: "1454 Thelbert Dr, Fayetteville, NC", purchaseDate: "23 March 2026", listedPrice: "", agent: "", zillowLink: "" },
+      { address: "506 Eaton St (7 Stars)", purchaseDate: "", listedPrice: "", agent: "", zillowLink: "" },
+      { address: "1320 Spring Ave, Fayetteville, NC", purchaseDate: "", listedPrice: "", agent: "Mia", zillowLink: "" }
     ]
   };
 
@@ -620,6 +629,7 @@
       <div class="card">
         <p class="addr">${escapeHtml(r.address)}</p>
         <div class="meta">
+          ${r.listedPrice ? `<span class="price">${escapeHtml(r.listedPrice)}</span>` : ''}
           <span>Under progress</span>
         </div>
         <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(r.zillowLink || zillowSearchUrl(r.address))}">View on Zillow</a>
@@ -679,6 +689,7 @@
         comingSoon.push({
           address,
           purchaseDate: cols[2] || '',
+          listedPrice: cols[7] || '',
           agent: cols[5] || '',
           zillowLink: cols[6] || ''
         });
@@ -736,7 +747,7 @@
       const message = document.getElementById('cf-message').value.trim();
       const subject = encodeURIComponent('Fay Sky Homes inquiry from ' + name);
       const body = encodeURIComponent(message + '\n\nFrom: ' + name + ' (' + phone + ')');
-      window.location.href = `mailto:manager@ncrei.org?subject=${subject}&body=${body}`;
+      window.location.href = `mailto:kkamineni@ragastech.com?subject=${subject}&body=${body}`;
     });
   }
 </script>
