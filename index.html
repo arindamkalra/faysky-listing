@@ -30,7 +30,7 @@
   header{
     background:linear-gradient(135deg,#1a2b3c,#2c4257);
     color:var(--warm-white);
-    padding:48px 24px 40px;
+    padding:32px 24px 28px;
     text-align:center;
   }
   header .brand{
@@ -58,7 +58,7 @@
     margin-right:auto;
   }
   header .header-commission{
-    margin-top:28px;
+    margin-top:16px;
     font-family:'Open Sans',Arial,sans-serif;
     font-size:0.88rem;
     color:#e8c97a;
@@ -103,6 +103,24 @@
   .badge.active{ background:#e3edf2; color:#2c4257; }
   .badge.coming{ background:#f3ead9; color:var(--accent-dark); }
   .badge.wip{ background:#edeaf5; color:#4a3d7a; }
+  .prop-details{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.82rem;
+    color:var(--brown);
+    font-weight:600;
+  }
+  .subsection-title{
+    font-size:1.1rem;
+    font-weight:600;
+    color:var(--charcoal);
+    margin:40px 0 6px;
+  }
+  .subsection-sub{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.85rem;
+    color:var(--brown);
+    margin:0 0 16px;
+  }
   .grid{
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
@@ -449,14 +467,12 @@
   </section>
 
   <section class="section">
-    <h2 class="section-title">Coming Soon <span class="badge coming">Upcoming Listings</span></h2>
+    <h2 class="section-title">Upcoming Sales <span class="badge coming">Upcoming Listings</span></h2>
     <p class="section-sub">Fully renovated and nearly ready &mdash; these homes will be listed soon.</p>
     <div class="grid" id="comingGrid"><div class="loading-msg">Loading listings&hellip;</div></div>
-  </section>
 
-  <section class="section">
-    <h2 class="section-title">Work In Progress <span class="badge wip">In Renovation</span></h2>
-    <p class="section-sub">These properties are currently being renovated and will be available for sale soon.</p>
+    <h3 class="subsection-title">Rehab In Progress <span class="badge wip">In Renovation</span></h3>
+    <p class="subsection-sub">These properties are currently being renovated and will be available for sale soon.</p>
     <div class="grid" id="wipGrid"><div class="loading-msg">Loading listings&hellip;</div></div>
   </section>
 
@@ -570,8 +586,8 @@
    ============================================================ */
 
   const SHEET_ID = "1aTJibmrbfTcnKfuKwUHKy2V7im06pj8G";
-  const SALE_PIPELINE_GID = "1493260937";
-  const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${SALE_PIPELINE_GID}`;
+  const INVENTORY_GID = "1450567019";
+  const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${INVENTORY_GID}`;
   // To fall back to embedded snapshot data instead, set SHEET_CSV_URL = "";
 
   const FALLBACK_DATA = {
@@ -611,6 +627,15 @@
     return (str || "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  function propDetails(r){
+    const parts = [];
+    if (r.beds) parts.push(`${escapeHtml(r.beds)} bd`);
+    if (r.baths) parts.push(`${escapeHtml(r.baths)} ba`);
+    if (r.sqft) parts.push(`${escapeHtml(r.sqft)} sqft`);
+    if (r.acres) parts.push(`${escapeHtml(r.acres)} ac`);
+    return parts.length ? `<span class="prop-details">${parts.join(' &middot; ')}</span>` : '';
+  }
+
   function renderActive(rows){
     const grid = document.getElementById('activeGrid');
     if (!rows.length){ grid.innerHTML = '<div class="empty-msg">No active listings right now. Check back soon.</div>'; return; }
@@ -619,6 +644,7 @@
         <p class="addr">${escapeHtml(r.address)}</p>
         <div class="meta">
           ${r.listedPrice ? `<span class="price">${escapeHtml(r.listedPrice)}</span>` : ''}
+          ${propDetails(r)}
           ${r.listedDate ? `<span>Listed ${escapeHtml(r.listedDate)}</span>` : ''}
           ${r.agent ? `<span class="agent">Agent: ${escapeHtml(r.agent)}</span>` : ''}
         </div>
@@ -635,6 +661,7 @@
         <p class="addr">${escapeHtml(r.address)}</p>
         <div class="meta">
           ${r.listedPrice ? `<span class="price">${escapeHtml(r.listedPrice)}</span>` : ''}
+          ${propDetails(r)}
           <span>Upcoming listing</span>
         </div>
         <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(r.zillowLink || zillowSearchUrl(r.address))}">View on Zillow</a>
@@ -649,7 +676,7 @@
       <div class="card">
         <p class="addr">${escapeHtml(r.address)}</p>
         <div class="meta">
-          ${r.purchaseDate ? `<span>Acquired ${escapeHtml(r.purchaseDate)}</span>` : ''}
+          ${propDetails(r)}
           <span>Renovation in progress</span>
         </div>
         <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(zillowSearchUrl(r.address))}">View on Zillow</a>
@@ -680,48 +707,33 @@
 
   function parseSheetCsv(csvText){
     const lines = csvText.split(/\r?\n/).filter(l => l.trim().length);
-    let mode = null;
     const active = [];
     const comingSoon = [];
     const wip = [];
+    let headerSkipped = false;
     for (const line of lines){
-      const upper = line.toUpperCase();
-      if (upper.includes('ACTIVE LISTED')){ mode = 'active'; continue; }
-      if (upper.includes('READY FOR LISTING')){ mode = 'coming'; continue; }
-      if (upper.includes('SALES INVENTORY')){ mode = 'wip'; continue; }
-      if (upper.includes('LOTS FOR SALE') || upper.includes('SOLD') || upper.includes('UNDER CONTRACT')){ mode = null; continue; }
-      if (upper.startsWith('PROPERTY ADDRESS') || upper.includes(',PROPERTY ADDRESS,')) continue;
-
       const cols = parseCsvLine(line).map(c => c.trim());
-      if (mode === 'active'){
-        const address = cols[1];
-        if (!address) continue;
-        active.push({
-          address,
-          purchaseDate: cols[2] || '',
-          listedDate: cols[6] || '',
-          listedPrice: cols[7] || '',
-          agent: cols[8] || '',
-          zillowLink: cols[9] || ''
-        });
-      } else if (mode === 'coming'){
-        const address = cols[1];
-        if (!address) continue;
-        comingSoon.push({
-          address,
-          purchaseDate: cols[2] || '',
-          listedPrice: cols[7] || '',
-          agent: cols[5] || '',
-          zillowLink: cols[6] || ''
-        });
-      } else if (mode === 'wip'){
-        const address = cols[1];
-        if (!address) continue;
-        wip.push({
-          address,
-          purchaseDate: cols[2] || ''
-        });
-      }
+      const address = cols[1];
+      if (!address) continue;
+      // Skip header rows
+      if (address.toUpperCase() === 'PROPERTY ADDRESS') { headerSkipped = true; continue; }
+      if (!headerSkipped) continue;
+      const status = (cols[8] || '').toLowerCase();
+      const row = {
+        address,
+        purchaseDate: cols[2] || '',
+        listedPrice: cols[7] || '',
+        listedDate: cols[6] || '',
+        agent: cols[5] || '',
+        zillowLink: cols[3] || '',
+        beds:  cols[9]  || '',
+        baths: cols[10] || '',
+        sqft:  cols[11] || '',
+        acres: cols[12] || ''
+      };
+      if (status.includes('listed for sale')){ active.push(row); }
+      else if (status.includes('ready for listing')){ comingSoon.push(row); }
+      else if (status.includes('rehab in progress')){ wip.push(row); }
     }
     return { active, comingSoon, wip };
   }
