@@ -130,40 +130,70 @@
     background:var(--warm-white);
     border:1px solid var(--border);
     border-radius:10px;
-    padding:20px;
+    padding:0;
     box-shadow:var(--shadow);
     display:flex;
     flex-direction:column;
-    gap:10px;
+    overflow:hidden;
     transition:transform .15s ease, box-shadow .15s ease;
   }
   .card:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(26,43,60,0.12); }
+  .card .card-img-wrap{
+    position:relative;
+    width:100%;
+    height:200px;
+    background:#e2ddd0;
+    flex-shrink:0;
+  }
   .card .card-img{
     width:100%;
-    height:180px;
+    height:100%;
     object-fit:cover;
-    border-radius:6px;
-    margin-bottom:4px;
-    background:#e2ddd0;
+    display:block;
+  }
+  .card .status-badge{
+    position:absolute;
+    top:10px;
+    left:10px;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.7rem;
+    font-weight:700;
+    letter-spacing:0.6px;
+    text-transform:uppercase;
+    padding:4px 10px;
+    border-radius:20px;
+    backdrop-filter:blur(4px);
+  }
+  .card .status-badge.for-sale{ background:rgba(79,122,82,0.92); color:#fff; }
+  .card .status-badge.upcoming{ background:rgba(184,151,90,0.92); color:#fff; }
+  .card .status-badge.wip-badge{ background:rgba(26,43,60,0.85); color:#fff; }
+  .card .card-body{
+    padding:16px 18px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    flex:1;
   }
   .card .addr{
-    font-size:1.15rem;
+    font-size:1rem;
     font-weight:600;
     color:var(--charcoal);
+    margin:0;
+    line-height:1.4;
+  }
+  .card .price{
+    font-size:1.25rem;
+    font-weight:700;
+    color:var(--accent-dark);
     margin:0;
   }
   .card .meta{
     font-family:'Open Sans',Arial,sans-serif;
-    font-size:0.85rem;
+    font-size:0.82rem;
     color:var(--brown);
     display:flex;
     flex-direction:column;
     gap:4px;
-  }
-  .card .price{
-    font-size:1.1rem;
-    font-weight:700;
-    color:var(--accent-dark);
   }
   .card .agent{
     font-family:'Open Sans',Arial,sans-serif;
@@ -177,10 +207,10 @@
     background:var(--accent);
     color:#fff;
     text-decoration:none;
-    padding:10px 14px;
+    padding:8px 14px;
     border-radius:6px;
     font-family:'Open Sans',Arial,sans-serif;
-    font-size:0.85rem;
+    font-size:0.82rem;
     font-weight:600;
     letter-spacing:0.3px;
   }
@@ -628,9 +658,12 @@
     return raw; // already a direct URL
   }
 
-  function cardImg(r){
+  function cardImgWrap(r, badgeClass, badgeLabel){
     const url = driveImgUrl(r.image);
-    return url ? `<img class="card-img" src="${escapeHtml(url)}" alt="${escapeHtml(r.address)}" loading="lazy" onerror="this.style.display='none'">` : '';
+    const img = url
+      ? `<img class="card-img" src="${escapeHtml(url)}" alt="${escapeHtml(r.address)}" loading="lazy" onerror="this.parentElement.style.background='#e2ddd0'">`
+      : '';
+    return `<div class="card-img-wrap">${img}<span class="status-badge ${escapeHtml(badgeClass)}">${badgeLabel}</span></div>`;
   }
 
   function renderActive(rows){
@@ -638,13 +671,13 @@
     if (!rows.length){ grid.innerHTML = '<div class="empty-msg">No active listings right now. Check back soon.</div>'; return; }
     grid.innerHTML = rows.map(r => `
       <div class="card">
-        ${cardImg(r)}
-        <p class="addr">${escapeHtml(r.address)}</p>
-        <div class="meta">
-          ${r.listedPrice ? `<span class="price">${escapeHtml(r.listedPrice)}</span>` : ''}
-          ${propDetails(r)}
+        ${cardImgWrap(r, 'for-sale', 'For Sale')}
+        <div class="card-body">
+          ${r.listedPrice ? `<p class="price">${escapeHtml(r.listedPrice)}</p>` : ''}
+          <p class="addr">${escapeHtml(r.address)}</p>
+          <div class="meta">${propDetails(r)}</div>
+          <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(r.zillowLink || zillowSearchUrl(r.address))}">View on Zillow</a>
         </div>
-        <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(r.zillowLink || zillowSearchUrl(r.address))}">View on Zillow</a>
       </div>
     `).join('');
   }
@@ -654,14 +687,13 @@
     if (!rows.length){ grid.innerHTML = '<div class="empty-msg">No upcoming listings right now.</div>'; return; }
     grid.innerHTML = rows.map(r => `
       <div class="card">
-        ${cardImg(r)}
-        <p class="addr">${escapeHtml(r.address)}</p>
-        <div class="meta">
-          ${r.listedPrice ? `<span class="price">${escapeHtml(r.listedPrice)}</span>` : ''}
-          ${propDetails(r)}
-          <span>Upcoming listing</span>
+        ${cardImgWrap(r, 'upcoming', 'Upcoming')}
+        <div class="card-body">
+          ${r.listedPrice ? `<p class="price">${escapeHtml(r.listedPrice)}</p>` : ''}
+          <p class="addr">${escapeHtml(r.address)}</p>
+          <div class="meta">${propDetails(r)}</div>
+          <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(r.zillowLink || zillowSearchUrl(r.address))}">View on Zillow</a>
         </div>
-        <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(r.zillowLink || zillowSearchUrl(r.address))}">View on Zillow</a>
       </div>
     `).join('');
   }
@@ -671,13 +703,12 @@
     if (!rows.length){ grid.innerHTML = '<div class="empty-msg">No properties currently in renovation.</div>'; return; }
     grid.innerHTML = rows.map(r => `
       <div class="card">
-        ${cardImg(r)}
-        <p class="addr">${escapeHtml(r.address)}</p>
-        <div class="meta">
-          ${propDetails(r)}
-          <span>Renovation in progress</span>
+        ${cardImgWrap(r, 'wip-badge', 'In Renovation')}
+        <div class="card-body">
+          <p class="addr">${escapeHtml(r.address)}</p>
+          <div class="meta">${propDetails(r)}</div>
+          <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(zillowSearchUrl(r.address))}">View on Zillow</a>
         </div>
-        <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(zillowSearchUrl(r.address))}">View on Zillow</a>
       </div>
     `).join('');
   }
