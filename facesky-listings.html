@@ -142,14 +142,34 @@
     position:relative;
     width:100%;
     height:200px;
-    background:#e2ddd0;
+    background:#ddd8ce;
     flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
   }
   .card .card-img{
     width:100%;
     height:100%;
     object-fit:cover;
     display:block;
+    position:absolute;
+    top:0; left:0;
+  }
+  .card .card-img-placeholder{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    color:#9a9080;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.75rem;
+    letter-spacing:0.3px;
+    text-transform:uppercase;
+    z-index:0;
+  }
+  .card .card-img-placeholder svg{
+    opacity:0.5;
   }
   .card .status-badge{
     position:absolute;
@@ -660,10 +680,31 @@
 
   function cardImgWrap(r, badgeClass, badgeLabel){
     const url = driveImgUrl(r.image);
+    const placeholder = `<div class="card-img-placeholder">
+      <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- House base -->
+        <path d="M8 28L28 10L48 28V48H36V36H20V48H8V28Z" fill="#b8a898" stroke="#9a9080" stroke-width="1.5" stroke-linejoin="round"/>
+        <!-- Roof peak lines -->
+        <path d="M28 10L28 10" stroke="#9a9080" stroke-width="1.5"/>
+        <!-- Door -->
+        <rect x="22" y="36" width="12" height="12" rx="1" fill="#9a9080"/>
+        <!-- Windows -->
+        <rect x="12" y="30" width="8" height="7" rx="1" fill="#c8bfb0"/>
+        <rect x="36" y="30" width="8" height="7" rx="1" fill="#c8bfb0"/>
+        <!-- Scaffold/ladder (rehab indicator) -->
+        <line x1="44" y1="14" x2="44" y2="48" stroke="#9a9080" stroke-width="2"/>
+        <line x1="50" y1="14" x2="50" y2="48" stroke="#9a9080" stroke-width="2"/>
+        <line x1="44" y1="20" x2="50" y2="20" stroke="#9a9080" stroke-width="1.5"/>
+        <line x1="44" y1="28" x2="50" y2="28" stroke="#9a9080" stroke-width="1.5"/>
+        <line x1="44" y1="36" x2="50" y2="36" stroke="#9a9080" stroke-width="1.5"/>
+        <line x1="44" y1="44" x2="50" y2="44" stroke="#9a9080" stroke-width="1.5"/>
+      </svg>
+      <span>Photo coming soon</span>
+    </div>`;
     const img = url
-      ? `<img class="card-img" src="${escapeHtml(url)}" alt="${escapeHtml(r.address)}" loading="lazy" onerror="this.parentElement.style.background='#e2ddd0'">`
+      ? `<img class="card-img" src="${escapeHtml(url)}" alt="${escapeHtml(r.address)}" loading="lazy" onerror="this.style.display='none'">`
       : '';
-    return `<div class="card-img-wrap">${img}<span class="status-badge ${escapeHtml(badgeClass)}">${badgeLabel}</span></div>`;
+    return `<div class="card-img-wrap">${placeholder}${img}<span class="status-badge ${escapeHtml(badgeClass)}">${badgeLabel}</span></div>`;
   }
 
   function renderActive(rows){
