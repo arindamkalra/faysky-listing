@@ -693,8 +693,8 @@
 
       // Detect header row by looking for "PROPERTY ADDRESS" and "PIPELINE" or "STATUS"
       if (!headerFound){
-        const addrIdx = upper.findIndex(c => c.includes('PROPERTY ADDRESS') || c === 'ADDRESS');
-        const statIdx = upper.findIndex(c => c === 'PIPELINE' || c === 'STATUS' || c.includes('PIPELINE'));
+        const addrIdx = upper.findIndex(c => c.includes('PROPERTY') || c === 'ADDRESS');
+        const statIdx = upper.findIndex(c => c.includes('PIPELINE'));
         if (addrIdx !== -1 && statIdx !== -1){
           addrColIdx = addrIdx;
           statusColIdx = statIdx;
@@ -703,22 +703,20 @@
         continue;
       }
 
-      const address = cols[2] || '';  // Col C = Property
+      const address = cols[addrColIdx] || '';
       if (!address) continue;
-      const status = (cols[8] || '').toLowerCase().trim();  // Col I = Pipeline
+      const status = (cols[statusColIdx] || '').toLowerCase().trim();
 
-      // A=0 #, B=1 Status, C=2 Property, D=3 PM, E=4 Strategy, F=5 Closing Date,
-      // G=6 Delivery Date, H=7 Source, I=8 Pipeline, J=9 Bed, K=10 Bath, L=11 Sq ft, M=12 acres
       const row = {
         address,
-        listedDate:  cols[5] || '',  // Closing Date
-        agent:       cols[3] || '',  // PM
+        listedDate:  cols[statusColIdx - 3] || '',  // Closing Date (col F)
+        agent:       cols[addrColIdx + 1] || '',     // PM (col D)
         listedPrice: '',
         zillowLink:  '',
-        beds:  cols[9]  || '',
-        baths: cols[10] || '',
-        sqft:  cols[11] || '',
-        acres: cols[12] || ''
+        beds:  cols[statusColIdx + 1] || '',
+        baths: cols[statusColIdx + 2] || '',
+        sqft:  cols[statusColIdx + 3] || '',
+        acres: cols[statusColIdx + 4] || ''
       };
 
       if (status.includes('listed for sale'))        active.push(row);
