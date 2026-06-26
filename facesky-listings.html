@@ -590,34 +590,7 @@
   const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${INVENTORY_GID}`;
   // To fall back to embedded snapshot data instead, set SHEET_CSV_URL = "";
 
-  const FALLBACK_DATA = {
-    lastUpdated: "1 May 2026 (sheet snapshot)",
-    active: [
-      { address: "5917 Sunday Dr, Fayetteville, NC", purchaseDate: "31 October 2025", listedDate: "7 May 2026", listedPrice: "$325,000", agent: "Jessica", zillowLink: "" },
-      { address: "518 S Cool Spring St, Fayetteville, NC", purchaseDate: "", listedDate: "6 May 2026", listedPrice: "$170,000", agent: "Jessica Deshotel", zillowLink: "" },
-      { address: "946 Rancho Dr, Fayetteville, NC", purchaseDate: "29 January 2026", listedDate: "1 May 2026", listedPrice: "$249,900", agent: "Sky", zillowLink: "" },
-      { address: "217 Teague St, Fayetteville, NC", purchaseDate: "23 July 2024", listedDate: "22 May 2026", listedPrice: "$159,000", agent: "Jessica Deshotel", zillowLink: "" },
-      { address: "2259 Lake Upchurch, Fayetteville, NC", purchaseDate: "22 January 2026", listedDate: "12 June 2026", listedPrice: "$310,000", agent: "Jessica Deshotel", zillowLink: "" }
-    ],
-    comingSoon: [
-      { address: "209 Rose St, Fayetteville, NC", purchaseDate: "", listedPrice: "", agent: "", zillowLink: "" },
-      { address: "6911 Radnor Street, Fayetteville, NC", purchaseDate: "4 December 2024", listedPrice: "", agent: "", zillowLink: "" },
-      { address: "1454 Thelbert Dr, Fayetteville, NC", purchaseDate: "23 March 2026", listedPrice: "", agent: "", zillowLink: "" },
-      { address: "506 Eaton St (7 Stars)", purchaseDate: "", listedPrice: "", agent: "", zillowLink: "" },
-      { address: "1320 Spring Ave, Fayetteville, NC", purchaseDate: "", listedPrice: "", agent: "Mia", zillowLink: "" }
-    ],
-    wip: [
-      { address: "2340 Sunnyside School Rd, Fayetteville, NC 28312", purchaseDate: "" },
-      { address: "4332 South River School Road, Wade, NC 28395", purchaseDate: "" },
-      { address: "5156 Matt Hair Rd, Fayetteville, NC 28312", purchaseDate: "" },
-      { address: "1110 Martindale Drive, Fayetteville, NC 28304", purchaseDate: "" },
-      { address: "3135 James Dail Rd, Eastover, NC 28312", purchaseDate: "" },
-      { address: "1454 Thelbert Dr, Fayetteville, NC 28301", purchaseDate: "" },
-      { address: "4130 Knollwood Drive, Fayetteville, NC 28304", purchaseDate: "" },
-      { address: "201 Castle Creek Drive, Raeford, NC 28376", purchaseDate: "" },
-      { address: "4437 Virsalli Loop, Hope Mills, NC 28348", purchaseDate: "" }
-    ]
-  };
+  const FALLBACK_DATA = { lastUpdated: "", active: [], comingSoon: [], wip: [] };
 
   function zillowSearchUrl(address){
     return "https://www.zillow.com/homes/" + encodeURIComponent(address.replace(/,/g,'')) + "_rb/";
@@ -710,30 +683,47 @@
     const active = [];
     const comingSoon = [];
     const wip = [];
-    let headerSkipped = false;
+    let statusColIdx = -1;
+    let addrColIdx = -1;
+    let headerFound = false;
+
     for (const line of lines){
       const cols = parseCsvLine(line).map(c => c.trim());
-      const address = cols[1];
+      const upper = cols.map(c => c.toUpperCase());
+
+      // Detect header row by looking for "PROPERTY ADDRESS" and "PIPELINE" or "STATUS"
+      if (!headerFound){
+        const addrIdx = upper.findIndex(c => c.includes('PROPERTY ADDRESS') || c === 'ADDRESS');
+        const statIdx = upper.findIndex(c => c === 'PIPELINE' || c === 'STATUS' || c.includes('PIPELINE'));
+        if (addrIdx !== -1 && statIdx !== -1){
+          addrColIdx = addrIdx;
+          statusColIdx = statIdx;
+          headerFound = true;
+        }
+        continue;
+      }
+
+      const address = cols[2] || '';  // Col C = Property
       if (!address) continue;
-      // Skip header rows
-      if (address.toUpperCase() === 'PROPERTY ADDRESS') { headerSkipped = true; continue; }
-      if (!headerSkipped) continue;
-      const status = (cols[8] || '').toLowerCase();
+      const status = (cols[8] || '').toLowerCase().trim();  // Col I = Pipeline
+
+      // A=0 #, B=1 Status, C=2 Property, D=3 PM, E=4 Strategy, F=5 Closing Date,
+      // G=6 Delivery Date, H=7 Source, I=8 Pipeline, J=9 Bed, K=10 Bath, L=11 Sq ft, M=12 acres
       const row = {
         address,
-        purchaseDate: cols[2] || '',
-        listedPrice: cols[7] || '',
-        listedDate: cols[6] || '',
-        agent: cols[5] || '',
-        zillowLink: cols[3] || '',
+        listedDate:  cols[5] || '',  // Closing Date
+        agent:       cols[3] || '',  // PM
+        listedPrice: '',
+        zillowLink:  '',
         beds:  cols[9]  || '',
         baths: cols[10] || '',
         sqft:  cols[11] || '',
         acres: cols[12] || ''
       };
-      if (status.includes('listed for sale')){ active.push(row); }
-      else if (status.includes('ready for listing')){ comingSoon.push(row); }
-      else if (status.includes('rehab in progress')){ wip.push(row); }
+
+      if (status.includes('listed for sale'))        active.push(row);
+      else if (status.includes('ready for listing')) comingSoon.push(row);
+      else if (status.includes('rehab in progress')) wip.push(row);
     }
     return { active, comingSoon, wip };
   }
