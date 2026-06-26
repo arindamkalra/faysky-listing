@@ -138,6 +138,14 @@
     transition:transform .15s ease, box-shadow .15s ease;
   }
   .card:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(26,43,60,0.12); }
+  .card .card-img{
+    width:100%;
+    height:180px;
+    object-fit:cover;
+    border-radius:6px;
+    margin-bottom:4px;
+    background:#e2ddd0;
+  }
   .card .addr{
     font-size:1.15rem;
     font-weight:600;
@@ -609,11 +617,25 @@
     return parts.length ? `<span class="prop-details">${parts.join(' &middot; ')}</span>` : '';
   }
 
+  function driveImgUrl(raw){
+    if (!raw) return '';
+    // Convert Google Drive share link to direct image URL
+    const m = raw.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (m) return `https://drive.google.com/uc?export=view&id=${m[1]}`;
+    return raw; // already a direct URL
+  }
+
+  function cardImg(r){
+    const url = driveImgUrl(r.image);
+    return url ? `<img class="card-img" src="${escapeHtml(url)}" alt="${escapeHtml(r.address)}" loading="lazy" onerror="this.style.display='none'">` : '';
+  }
+
   function renderActive(rows){
     const grid = document.getElementById('activeGrid');
     if (!rows.length){ grid.innerHTML = '<div class="empty-msg">No active listings right now. Check back soon.</div>'; return; }
     grid.innerHTML = rows.map(r => `
       <div class="card">
+        ${cardImg(r)}
         <p class="addr">${escapeHtml(r.address)}</p>
         <div class="meta">
           ${r.listedPrice ? `<span class="price">${escapeHtml(r.listedPrice)}</span>` : ''}
@@ -629,6 +651,7 @@
     if (!rows.length){ grid.innerHTML = '<div class="empty-msg">No upcoming listings right now.</div>'; return; }
     grid.innerHTML = rows.map(r => `
       <div class="card">
+        ${cardImg(r)}
         <p class="addr">${escapeHtml(r.address)}</p>
         <div class="meta">
           ${r.listedPrice ? `<span class="price">${escapeHtml(r.listedPrice)}</span>` : ''}
@@ -645,6 +668,7 @@
     if (!rows.length){ grid.innerHTML = '<div class="empty-msg">No properties currently in renovation.</div>'; return; }
     grid.innerHTML = rows.map(r => `
       <div class="card">
+        ${cardImg(r)}
         <p class="addr">${escapeHtml(r.address)}</p>
         <div class="meta">
           ${propDetails(r)}
@@ -707,9 +731,8 @@
 
       const row = {
         address,
-        listedDate:  cols[statusColIdx - 3] || '',  // Closing Date (col F)
-        agent:       cols[addrColIdx + 1] || '',     // PM (col D)
-        listedPrice: '',
+        listedPrice: cols[statusColIdx + 5] || '',  // col N
+        image:       cols[statusColIdx + 6] || '',  // col O
         zillowLink:  '',
         beds:  cols[statusColIdx + 1] || '',
         baths: cols[statusColIdx + 2] || '',
