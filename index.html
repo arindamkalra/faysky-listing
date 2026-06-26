@@ -618,8 +618,6 @@
         <div class="meta">
           ${r.listedPrice ? `<span class="price">${escapeHtml(r.listedPrice)}</span>` : ''}
           ${propDetails(r)}
-          ${r.listedDate ? `<span>Listed ${escapeHtml(r.listedDate)}</span>` : ''}
-          ${r.agent ? `<span class="agent">Agent: ${escapeHtml(r.agent)}</span>` : ''}
         </div>
         <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(r.zillowLink || zillowSearchUrl(r.address))}">View on Zillow</a>
       </div>
