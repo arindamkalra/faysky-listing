@@ -619,9 +619,12 @@
 
   function driveImgUrl(raw){
     if (!raw) return '';
-    // Convert Google Drive share link to direct image URL
+    // Convert Google Drive share link to thumbnail URL (works cross-origin)
     const m = raw.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    if (m) return `https://drive.google.com/uc?export=view&id=${m[1]}`;
+    if (m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w600`;
+    // Also handle ?id= format
+    const m2 = raw.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (m2) return `https://drive.google.com/thumbnail?id=${m2[1]}&sz=w600`;
     return raw; // already a direct URL
   }
 
