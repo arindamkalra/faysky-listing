@@ -486,29 +486,54 @@
     margin:0;
   }
   @media (max-width:680px){
+    /* Tighter header */
+    header{ padding:16px 20px 16px; }
+    header .brand{ font-size:1.9rem; }
+    header .sub{ font-size:0.88rem; margin-top:6px; }
+    header .header-commission{ margin-top:10px; padding:5px 14px; font-size:0.82rem; }
+
+    /* Trust cards: single horizontal scroll row */
     .trust-grid{
-      grid-template-columns:repeat(2,1fr);
-      gap:8px;
-      margin-bottom:32px;
+      display:flex;
+      flex-wrap:nowrap;
+      overflow-x:auto;
+      gap:10px;
+      margin-bottom:20px;
+      padding-bottom:6px;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
     }
+    .trust-grid::-webkit-scrollbar{ display:none; }
     .trust-card{
+      flex:0 0 auto;
+      width:130px;
       flex-direction:column;
       align-items:center;
       text-align:center;
-      padding:12px 6px;
+      padding:12px 10px;
       gap:6px;
     }
-    .trust-card .icon{
-      width:30px;
-      height:30px;
-    }
+    .trust-card .icon{ width:30px; height:30px; }
     .trust-card .icon svg{ width:16px; height:16px; }
-    .trust-card .trust-title{
-      font-size:0.72rem;
-      margin:0;
-      line-height:1.25;
-    }
+    .trust-card .trust-title{ font-size:0.72rem; margin:0; line-height:1.25; }
     .trust-card .trust-desc{ display:none; }
+
+    /* Jump to nav: single horizontal scroll row */
+    .listings-nav{
+      flex-wrap:nowrap;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+      padding:10px 14px;
+      gap:6px;
+      margin-bottom:24px;
+    }
+    .listings-nav::-webkit-scrollbar{ display:none; }
+    .listings-nav-link{ white-space:nowrap; font-size:0.8rem; padding:5px 12px; }
+
+    /* Reduce section spacing */
+    main{ padding:24px 16px 60px; }
+    .section + .section{ margin-top:36px; }
   }
 </style>
 </head>
