@@ -90,11 +90,12 @@
     margin:0 0 24px;
   }
   .section + .section{ margin-top:56px; }
+  .listings-nav-wrap{ margin-bottom:36px; }
   .listings-nav{
     display:flex;
     gap:8px;
     flex-wrap:wrap;
-    margin-bottom:36px;
+    margin-bottom:0;
     padding:14px 18px;
     background:var(--warm-white);
     border:1px solid var(--border);
@@ -108,7 +109,9 @@
     text-transform:uppercase;
     letter-spacing:0.8px;
     color:#b0a898;
-    margin:0 0 6px;
+    margin:0 0 8px;
+    padding:0;
+    display:block;
   }
   .listings-nav-link{
     display:flex;
@@ -454,15 +457,17 @@
     background:var(--warm-white);
     border:1px solid var(--border);
     border-radius:10px;
-    padding:22px 20px;
+    padding:24px 20px 20px;
     box-shadow:var(--shadow);
     display:flex;
-    gap:14px;
-    align-items:flex-start;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap:12px;
   }
   .trust-card .icon{
-    width:38px;
-    height:38px;
+    width:48px;
+    height:48px;
     flex-shrink:0;
     border-radius:50%;
     background:#f3ead9;
@@ -471,16 +476,16 @@
     align-items:center;
     justify-content:center;
   }
-  .trust-card .icon svg{ width:20px; height:20px; }
+  .trust-card .icon svg{ width:24px; height:24px; }
   .trust-card .trust-title{
-    font-size:0.98rem;
+    font-size:0.95rem;
     font-weight:600;
     color:var(--charcoal);
     margin:0 0 4px;
   }
   .trust-card .trust-desc{
     font-family:'Open Sans',Arial,sans-serif;
-    font-size:0.85rem;
+    font-size:0.83rem;
     color:var(--brown);
     margin:0;
   }
@@ -505,19 +510,17 @@
     .trust-grid::-webkit-scrollbar{ display:none; }
     .trust-card{
       flex:0 0 auto;
-      width:130px;
-      flex-direction:column;
-      align-items:center;
-      text-align:center;
-      padding:12px 10px;
-      gap:6px;
+      width:140px;
+      padding:14px 10px;
+      gap:8px;
     }
-    .trust-card .icon{ width:30px; height:30px; }
-    .trust-card .icon svg{ width:16px; height:16px; }
-    .trust-card .trust-title{ font-size:0.72rem; margin:0; line-height:1.25; }
+    .trust-card .icon{ width:36px; height:36px; }
+    .trust-card .icon svg{ width:18px; height:18px; }
+    .trust-card .trust-title{ font-size:0.75rem; margin:0; line-height:1.25; }
     .trust-card .trust-desc{ display:none; }
 
     /* Jump to nav: label floats above box, pills scroll horizontally */
+    .listings-nav-wrap{ margin-bottom:24px; }
     .listings-nav{
       flex-wrap:nowrap;
       overflow-x:auto;
@@ -525,7 +528,7 @@
       scrollbar-width:none;
       padding:10px 14px;
       gap:6px;
-      margin-bottom:24px;
+      margin-bottom:0;
     }
     .listings-nav::-webkit-scrollbar{ display:none; }
 .listings-nav-link{ white-space:nowrap; font-size:0.8rem; padding:5px 12px; }
@@ -584,6 +587,7 @@
     </div>
   </div>
 
+  <div class="listings-nav-wrap">
   <p class="listings-nav-label">Jump to:</p>
   <nav class="listings-nav">
     <a href="#section-active" class="listings-nav-link">
@@ -596,6 +600,7 @@
       <span class="listings-nav-dot dot-wip"></span>Under Renovation
     </a>
   </nav>
+  </div>
 
   <section class="section" id="section-active">
     <h2 class="section-title">Currently For Sale <span class="badge active">On MLS</span></h2>
