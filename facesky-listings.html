@@ -518,7 +518,7 @@
     .trust-card .trust-title{ font-size:0.72rem; margin:0; line-height:1.25; }
     .trust-card .trust-desc{ display:none; }
 
-    /* Jump to nav: single horizontal scroll row */
+    /* Jump to nav: label floats above box, pills scroll horizontally */
     .listings-nav{
       flex-wrap:nowrap;
       overflow-x:auto;
@@ -527,8 +527,21 @@
       padding:10px 14px;
       gap:6px;
       margin-bottom:24px;
+      margin-top:8px;
+      position:relative;
     }
     .listings-nav::-webkit-scrollbar{ display:none; }
+    .listings-nav-label{
+      position:absolute;
+      top:-10px;
+      left:14px;
+      background:var(--cream);
+      padding:0 6px;
+      font-size:0.65rem;
+      font-weight:600;
+      letter-spacing:0.6px;
+      color:#b0a898;
+    }
     .listings-nav-link{ white-space:nowrap; font-size:0.8rem; padding:5px 12px; }
 
     /* Reduce section spacing */
@@ -567,20 +580,20 @@
     </div>
     <div class="trust-card">
       <div class="icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
-      </div>
-      <div>
-        <p class="trust-title">Independent inspection done</p>
-        <p class="trust-desc">Every home has already had a full independent inspection &mdash; reports available before you make an offer.</p>
-      </div>
-    </div>
-    <div class="trust-card">
-      <div class="icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
       </div>
       <div>
         <p class="trust-title">No DD or closing costs</p>
         <p class="trust-desc">No due diligence money required &mdash; and we cover full closing costs so you keep more cash at close.</p>
+      </div>
+    </div>
+    <div class="trust-card">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
+      </div>
+      <div>
+        <p class="trust-title">Independently inspected homes</p>
+        <p class="trust-desc">Every home has already had a full independent inspection &mdash; reports available before you make an offer.</p>
       </div>
     </div>
   </div>
