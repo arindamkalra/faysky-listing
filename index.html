@@ -305,30 +305,78 @@
     transition:background .15s, color .15s;
   }
   .card a.media-btn:hover{ background:var(--accent); color:#fff; }
-  .card .changes{
+  .card .changes-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:transparent;
+    color:var(--brown);
+    border:1.5px solid var(--border);
+    padding:6px 12px;
+    border-radius:6px;
     font-family:'Open Sans',Arial,sans-serif;
     font-size:0.78rem;
-    color:var(--brown);
-    margin-top:8px;
-    padding-top:8px;
-    border-top:1px solid var(--border);
+    font-weight:600;
+    letter-spacing:0.3px;
+    cursor:pointer;
+    transition:border-color .15s, color .15s;
+    margin-top:4px;
   }
-  .card .changes-label{
+  .card .changes-btn:hover{ border-color:var(--accent); color:var(--accent); }
+  /* Modal */
+  .changes-modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(26,43,60,0.45);
+    z-index:1000;
+    align-items:center;
+    justify-content:center;
+  }
+  .changes-modal-overlay.open{ display:flex; }
+  .changes-modal{
+    background:#fff;
+    border-radius:12px;
+    padding:28px 28px 24px;
+    max-width:380px;
+    width:90%;
+    box-shadow:0 12px 40px rgba(26,43,60,0.2);
+    position:relative;
+  }
+  .changes-modal-title{
+    font-family:'Open Sans',Arial,sans-serif;
     font-size:0.72rem;
     font-weight:700;
     text-transform:uppercase;
     letter-spacing:0.8px;
     color:var(--accent);
-    margin-bottom:4px;
+    margin:0 0 12px;
   }
-  .card .changes ul{
+  .changes-modal ul{
     margin:0;
-    padding-left:16px;
+    padding-left:18px;
     display:flex;
     flex-direction:column;
-    gap:2px;
+    gap:6px;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.88rem;
+    color:var(--charcoal);
+    line-height:1.5;
   }
-  .card .changes ul li{ line-height:1.45; }
+  .changes-modal-close{
+    position:absolute;
+    top:12px; right:14px;
+    background:none;
+    border:none;
+    font-size:1.3rem;
+    color:var(--brown);
+    cursor:pointer;
+    line-height:1;
+    padding:2px 6px;
+    border-radius:4px;
+    transition:background .15s;
+  }
+  .changes-modal-close:hover{ background:var(--cream); }
   .empty-msg, .loading-msg, .error-msg{
     font-family:'Open Sans',Arial,sans-serif;
     font-size:0.9rem;
@@ -644,9 +692,6 @@
     <a href="#section-coming" class="listings-nav-link">
       <span class="listings-nav-dot dot-coming"></span>Upcoming Sales
     </a>
-    <a href="#section-wip" class="listings-nav-link">
-      <span class="listings-nav-dot dot-wip"></span>Under Renovation
-    </a>
   </nav>
   </div>
 
@@ -661,9 +706,6 @@
     <p class="section-sub">Fully renovated and nearly ready &mdash; these homes will be listed soon.</p>
     <div class="grid" id="comingGrid"><div class="loading-msg">Loading listings&hellip;</div></div>
 
-    <h3 class="subsection-title" id="section-wip">Rehab In Progress <span class="badge wip">In Renovation</span></h3>
-    <p class="subsection-sub">These properties are currently being renovated and will be available for sale soon.</p>
-    <div class="grid" id="wipGrid"><div class="loading-msg">Loading listings&hellip;</div></div>
   </section>
 
   <section class="howitworks">
@@ -719,6 +761,14 @@
     </div>
   </section>
 </main>
+
+<div class="changes-modal-overlay" id="changesOverlay">
+  <div class="changes-modal">
+    <button class="changes-modal-close" id="changesClose" aria-label="Close">&times;</button>
+    <p class="changes-modal-title">Renovations &amp; Updates</p>
+    <ul id="changesModalList"></ul>
+  </div>
+</div>
 
 <footer>
   &copy; <span id="year"></span> Fay Sky Homes
@@ -806,8 +856,8 @@
     if (!r.changes) return '';
     const items = r.changes.split(/[;,\n]+/).map(s => s.trim()).filter(Boolean);
     if (!items.length) return '';
-    const lis = items.map(i => `<li>${escapeHtml(i)}</li>`).join('');
-    return `<div class="changes"><div class="changes-label">Renovations &amp; Updates</div><ul>${lis}</ul></div>`;
+    const encoded = encodeURIComponent(JSON.stringify(items));
+    return `<button class="changes-btn" onclick="openChangesModal('${encoded}')">&#128295; Renovations &amp; Updates</button>`;
   }
 
   function driveImgUrl(raw){
@@ -884,23 +934,7 @@
     `).join('');
   }
 
-  function renderWip(rows){
-    const grid = document.getElementById('wipGrid');
-    if (!rows.length){ grid.innerHTML = '<div class="empty-msg">No properties currently in renovation.</div>'; return; }
-    grid.innerHTML = rows.map(r => `
-      <div class="card">
-        ${cardImgWrap(r, 'wip-badge', 'In Renovation')}
-        <div class="card-body">
-          <p class="addr">${escapeHtml(r.address)}</p>
-          <div class="meta">${propDetails(r)}</div>
-          ${changesHtml(r)}
-          ${cardButtons(r, true)}
-        </div>
-      </div>
-    `).join('');
-  }
-
-  function parseCsvLine(line){
+function parseCsvLine(line){
     // basic RFC4180-ish CSV parser for a single line
     const out = [];
     let cur = '', inQuotes = false;
@@ -925,7 +959,6 @@
     const lines = csvText.split(/\r?\n/).filter(l => l.trim().length);
     const active = [];
     const comingSoon = [];
-    const wip = [];
     let statusColIdx = -1;
     let addrColIdx = -1;
     let headerFound = false;
@@ -965,9 +998,8 @@
 
       if (status.includes('listed for sale'))        active.push(row);
       else if (status.includes('ready for listing')) comingSoon.push(row);
-      else if (status.includes('rehab in progress')) wip.push(row);
     }
-    return { active, comingSoon, wip };
+    return { active, comingSoon };
   }
 
   function setLastUpdated(text){
@@ -976,29 +1008,37 @@
 
   async function loadListings(){
     if (!SHEET_CSV_URL){
-      setLastUpdated(FALLBACK_DATA.lastUpdated + ' — live feed not yet connected');
       renderActive(FALLBACK_DATA.active);
       renderComingSoon(FALLBACK_DATA.comingSoon);
-      renderWip(FALLBACK_DATA.wip);
       return;
     }
     try{
       const res = await fetch(SHEET_CSV_URL, { cache: 'no-store' });
       if (!res.ok) throw new Error('Fetch failed: ' + res.status);
       const csvText = await res.text();
-      const { active, comingSoon, wip } = parseSheetCsv(csvText);
-      setLastUpdated(new Date().toLocaleString());
+      const { active, comingSoon } = parseSheetCsv(csvText);
       renderActive(active);
       renderComingSoon(comingSoon);
-      renderWip(wip);
     } catch (err){
       console.error(err);
-      setLastUpdated('could not refresh — showing last known data');
       renderActive(FALLBACK_DATA.active);
       renderComingSoon(FALLBACK_DATA.comingSoon);
-      renderWip(FALLBACK_DATA.wip);
     }
   }
+
+  // Renovations modal
+  function openChangesModal(encoded){
+    const items = JSON.parse(decodeURIComponent(encoded));
+    const list = document.getElementById('changesModalList');
+    list.innerHTML = items.map(i => `<li>${escapeHtml(i)}</li>`).join('');
+    document.getElementById('changesOverlay').classList.add('open');
+  }
+  document.getElementById('changesClose').addEventListener('click', () => {
+    document.getElementById('changesOverlay').classList.remove('open');
+  });
+  document.getElementById('changesOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+  });
 
   document.getElementById('year').textContent = new Date().getFullYear();
   loadListings();
