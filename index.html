@@ -305,6 +305,13 @@
     transition:background .15s, color .15s;
   }
   .card a.media-btn:hover{ background:var(--accent); color:#fff; }
+  .card .desc{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.83rem;
+    color:var(--brown);
+    line-height:1.5;
+    margin:0;
+  }
   .card .changes-btn{
     display:inline-flex;
     align-items:center;
@@ -910,6 +917,7 @@
           ${r.listedPrice ? `<p class="price">${escapeHtml(r.listedPrice)}</p>` : ''}
           <p class="addr">${escapeHtml(r.address)}</p>
           <div class="meta">${propDetails(r)}</div>
+          ${r.desc ? `<p class="desc">${escapeHtml(r.desc)}</p>` : ''}
           ${changesHtml(r)}
           ${cardButtons(r)}
         </div>
@@ -927,6 +935,7 @@
           ${r.listedPrice ? `<p class="price">${escapeHtml(r.listedPrice)}</p>` : ''}
           <p class="addr">${escapeHtml(r.address)}</p>
           <div class="meta">${propDetails(r)}</div>
+          ${r.desc ? `<p class="desc">${escapeHtml(r.desc)}</p>` : ''}
           ${changesHtml(r)}
           ${cardButtons(r)}
         </div>
@@ -989,6 +998,7 @@ function parseCsvLine(line){
         image:       cols[statusColIdx + 6] || '',  // col O
         mediaLink:   cols[statusColIdx + 7] || '',  // col P — photos & videos link
         changes:     cols[statusColIdx + 8] || '',  // col Q — list of changes/renovations
+        desc:        cols[statusColIdx + 9] || '',  // col R — short description
         zillowLink:  '',
         beds:  cols[statusColIdx + 1] || '',
         baths: cols[statusColIdx + 2] || '',
