@@ -281,6 +281,54 @@
     letter-spacing:0.3px;
   }
   .card a.zillow-btn:hover{ background:var(--accent-dark); }
+  .card-btns{
+    margin-top:auto;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .card-btns a.zillow-btn{ margin-top:0; flex:1; text-align:center; }
+  .card a.media-btn{
+    flex:1;
+    display:inline-block;
+    text-align:center;
+    background:transparent;
+    color:var(--accent);
+    text-decoration:none;
+    padding:8px 14px;
+    border-radius:6px;
+    border:1.5px solid var(--accent);
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.82rem;
+    font-weight:600;
+    letter-spacing:0.3px;
+    transition:background .15s, color .15s;
+  }
+  .card a.media-btn:hover{ background:var(--accent); color:#fff; }
+  .card .changes{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.78rem;
+    color:var(--brown);
+    margin-top:8px;
+    padding-top:8px;
+    border-top:1px solid var(--border);
+  }
+  .card .changes-label{
+    font-size:0.72rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.8px;
+    color:var(--accent);
+    margin-bottom:4px;
+  }
+  .card .changes ul{
+    margin:0;
+    padding-left:16px;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .card .changes ul li{ line-height:1.45; }
   .empty-msg, .loading-msg, .error-msg{
     font-family:'Open Sans',Arial,sans-serif;
     font-size:0.9rem;
@@ -747,6 +795,21 @@
     return parts.length ? `<span class="prop-details">${parts.join(' &middot; ')}</span>` : '';
   }
 
+  function cardButtons(r, forceZillowSearch){
+    const zUrl = forceZillowSearch ? zillowSearchUrl(r.address) : (r.zillowLink || zillowSearchUrl(r.address));
+    const zillow = `<a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(zUrl)}">View on Zillow</a>`;
+    const media = r.mediaLink ? `<a class="media-btn" target="_blank" rel="noopener" href="${escapeHtml(r.mediaLink)}">&#127916; Photos &amp; Videos</a>` : '';
+    return `<div class="card-btns">${zillow}${media}</div>`;
+  }
+
+  function changesHtml(r){
+    if (!r.changes) return '';
+    const items = r.changes.split(/[;,\n]+/).map(s => s.trim()).filter(Boolean);
+    if (!items.length) return '';
+    const lis = items.map(i => `<li>${escapeHtml(i)}</li>`).join('');
+    return `<div class="changes"><div class="changes-label">Renovations &amp; Updates</div><ul>${lis}</ul></div>`;
+  }
+
   function driveImgUrl(raw){
     if (!raw) return '';
     // Convert Google Drive share link to thumbnail URL (works cross-origin)
@@ -797,7 +860,8 @@
           ${r.listedPrice ? `<p class="price">${escapeHtml(r.listedPrice)}</p>` : ''}
           <p class="addr">${escapeHtml(r.address)}</p>
           <div class="meta">${propDetails(r)}</div>
-          <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(r.zillowLink || zillowSearchUrl(r.address))}">View on Zillow</a>
+          ${changesHtml(r)}
+          ${cardButtons(r)}
         </div>
       </div>
     `).join('');
@@ -813,7 +877,8 @@
           ${r.listedPrice ? `<p class="price">${escapeHtml(r.listedPrice)}</p>` : ''}
           <p class="addr">${escapeHtml(r.address)}</p>
           <div class="meta">${propDetails(r)}</div>
-          <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(r.zillowLink || zillowSearchUrl(r.address))}">View on Zillow</a>
+          ${changesHtml(r)}
+          ${cardButtons(r)}
         </div>
       </div>
     `).join('');
@@ -828,7 +893,8 @@
         <div class="card-body">
           <p class="addr">${escapeHtml(r.address)}</p>
           <div class="meta">${propDetails(r)}</div>
-          <a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(zillowSearchUrl(r.address))}">View on Zillow</a>
+          ${changesHtml(r)}
+          ${cardButtons(r, true)}
         </div>
       </div>
     `).join('');
@@ -888,6 +954,8 @@
         address,
         listedPrice: cols[statusColIdx + 5] || '',  // col N
         image:       cols[statusColIdx + 6] || '',  // col O
+        mediaLink:   cols[statusColIdx + 7] || '',  // col P — photos & videos link
+        changes:     cols[statusColIdx + 8] || '',  // col Q — list of changes/renovations
         zillowLink:  '',
         beds:  cols[statusColIdx + 1] || '',
         baths: cols[statusColIdx + 2] || '',
