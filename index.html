@@ -943,40 +943,43 @@
     `).join('');
   }
 
-function parseCsvLine(line){
-    // basic RFC4180-ish CSV parser for a single line
-    const out = [];
-    let cur = '', inQuotes = false;
-    for (let i=0;i<line.length;i++){
-      const c = line[i];
-      if (inQuotes){
+// Full RFC4180 CSV parser — handles quoted multi-line cells correctly
+  function parseCsv(text){
+    const rows = [];
+    let row = [], cur = '', inQ = false;
+    for (let i = 0; i < text.length; i++){
+      const c = text[i];
+      if (inQ){
         if (c === '"'){
-          if (line[i+1] === '"'){ cur += '"'; i++; }
-          else inQuotes = false;
-        } else cur += c;
+          if (text[i+1] === '"'){ cur += '"'; i++; }
+          else inQ = false;
+        } else {
+          cur += c; // newlines inside quotes preserved
+        }
       } else {
-        if (c === '"') inQuotes = true;
-        else if (c === ','){ out.push(cur); cur=''; }
-        else cur += c;
+        if (c === '"'){ inQ = true; }
+        else if (c === ','){ row.push(cur); cur = ''; }
+        else if (c === '\r' && text[i+1] === '\n'){ row.push(cur); cur = ''; rows.push(row); row = []; i++; }
+        else if (c === '\n' || c === '\r'){ row.push(cur); cur = ''; rows.push(row); row = []; }
+        else { cur += c; }
       }
     }
-    out.push(cur);
-    return out;
+    if (cur !== '' || row.length){ row.push(cur); rows.push(row); }
+    return rows;
   }
 
   function parseSheetCsv(csvText){
-    const lines = csvText.split(/\r?\n/).filter(l => l.trim().length);
+    const allRows = parseCsv(csvText);
     const active = [];
     const comingSoon = [];
     let statusColIdx = -1;
     let addrColIdx = -1;
     let headerFound = false;
 
-    for (const line of lines){
-      const cols = parseCsvLine(line).map(c => c.trim());
-      const upper = cols.map(c => c.toUpperCase());
+    for (const cols of allRows){
+      const trimmed = cols.map(c => (c || '').trim());
+      const upper = trimmed.map(c => c.toUpperCase());
 
-      // Detect header row by looking for "PROPERTY ADDRESS" and "PIPELINE" or "STATUS"
       if (!headerFound){
         const addrIdx = upper.findIndex(c => c.includes('PROPERTY') || c === 'ADDRESS');
         const statIdx = upper.findIndex(c => c.includes('PIPELINE'));
@@ -988,22 +991,22 @@ function parseCsvLine(line){
         continue;
       }
 
-      const address = cols[addrColIdx] || '';
+      const address = trimmed[addrColIdx] || '';
       if (!address) continue;
-      const status = (cols[statusColIdx] || '').toLowerCase().trim();
+      const status = (trimmed[statusColIdx] || '').toLowerCase().trim();
 
       const row = {
         address,
-        listedPrice: cols[statusColIdx + 5] || '',  // col N
-        image:       cols[statusColIdx + 6] || '',  // col O
-        mediaLink:   cols[statusColIdx + 7] || '',  // col P — photos & videos link
-        changes:     cols[statusColIdx + 8] || '',  // col Q — list of changes/renovations
-        desc:        cols[statusColIdx + 9] || '',  // col R — short description
+        listedPrice: trimmed[statusColIdx + 5] || '',  // col N
+        image:       trimmed[statusColIdx + 6] || '',  // col O
+        mediaLink:   trimmed[statusColIdx + 7] || '',  // col P
+        changes:     cols[statusColIdx + 8]    || '',  // col Q — keep raw newlines for split
+        desc:        trimmed[statusColIdx + 9] || '',  // col R
         zillowLink:  '',
-        beds:  cols[statusColIdx + 1] || '',
-        baths: cols[statusColIdx + 2] || '',
-        sqft:  cols[statusColIdx + 3] || '',
-        acres: cols[statusColIdx + 4] || ''
+        beds:  trimmed[statusColIdx + 1] || '',
+        baths: trimmed[statusColIdx + 2] || '',
+        sqft:  trimmed[statusColIdx + 3] || '',
+        acres: trimmed[statusColIdx + 4] || ''
       };
 
       if (status.includes('listed for sale'))        active.push(row);
