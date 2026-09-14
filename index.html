@@ -340,57 +340,70 @@
     color:var(--brown);
     margin:0;
   }
-  /* Natural widths + wrap: fits one row on normal cards, drops to a second
-     row on the narrowest (280px) card rather than truncating the labels. */
-  .card .school-chips{
+  /* Stacked rows so full school names fit on a 280px card */
+  .card .schools-label{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.68rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.8px;
+    color:#b0a898;
+    margin:0;
+  }
+  .card .school-list{
     display:flex;
-    flex-wrap:wrap;
+    flex-direction:column;
     gap:6px;
   }
-  .card .school-chip{
-    flex:0 0 auto;
-    display:inline-flex;
-    align-items:center;
-    gap:5px;
-    border:1px solid var(--border);
-    border-radius:20px;
-    padding:4px 8px 4px 4px;
-    font-family:'Open Sans',Arial,sans-serif;
-    background:#fff;
+  .card .school-row{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
   }
   .card .school-score{
     flex:0 0 auto;           /* badge must never compress — keeps the "/10" intact */
     display:inline-flex;
     align-items:baseline;
     justify-content:center;
-    min-width:30px;
-    height:22px;
+    min-width:32px;
+    height:21px;
     padding:0 5px;
     border-radius:11px;
-    font-size:0.78rem;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.76rem;
     font-weight:700;
     color:#fff;
-    line-height:22px;
+    line-height:21px;
   }
   .card .school-score em{
     font-style:normal;
-    font-size:0.6rem;
+    font-size:0.58rem;
     font-weight:600;
     opacity:0.85;
   }
-  .card .school-level{
-    font-size:0.72rem;
+  .card .school-info{
+    display:flex;
+    flex-direction:column;
+    min-width:0;             /* allows long names to wrap instead of overflow */
+  }
+  .card .school-name{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.78rem;
     font-weight:600;
+    color:var(--charcoal);
+    line-height:1.35;
+  }
+  .card .school-grades{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.68rem;
     color:var(--brown);
-    letter-spacing:0.2px;
-    white-space:nowrap;
+    line-height:1.35;
   }
   /* Rating bands: 8-10 strong, 5-7 average, 1-4 below average */
-  .card .school-high .school-score{ background:#4f9d69; }
-  .card .school-mid  .school-score{ background:#c9a227; }
-  .card .school-low  .school-score{ background:#c4704f; }
-  .card .school-na   .school-score{ background:#b9b3a6; }
-  .card .school-score-na{ min-width:30px; }
+  .card .school-score.school-high{ background:#4f9d69; }
+  .card .school-score.school-mid { background:#c9a227; }
+  .card .school-score.school-low { background:#c4704f; }
+  .card .school-score.school-na  { background:#b9b3a6; }
 
   .card .changes-btn{
     display:inline-flex;
@@ -1043,27 +1056,32 @@
       ['Middle',     '6-8',  r.schoolMid,  r.schoolMidRating],
       ['High',       '9-12', r.schoolHigh, r.schoolHighRating]
     ];
-    const chips = levels.map(([label, grades, name, ratingCell]) => {
+    const rows = levels.map(([label, grades, name, ratingCell]) => {
       const s = makeSchool(name, ratingCell);
       if (!s) return '';
       const tier = ratingTier(s.rating);
       const score = s.rating !== null
-        ? `<span class="school-score">${escapeHtml(String(s.rating))}<em>/10</em></span>`
-        : '<span class="school-score school-score-na">&ndash;</span>';
-      const title = `${s.name} · Grades ${grades}`;
-      return `<span class="school-chip school-${tier}" title="${escapeHtml(title)}">
-        ${score}<span class="school-level">${escapeHtml(label)}</span>
-      </span>`;
+        ? `<span class="school-score school-${tier}">${escapeHtml(String(s.rating))}<em>/10</em></span>`
+        : `<span class="school-score school-na">&ndash;</span>`;
+      return `<div class="school-row">
+        ${score}
+        <span class="school-info">
+          <span class="school-name">${escapeHtml(s.name)}</span>
+          <span class="school-grades">${escapeHtml(label)} &middot; Grades ${escapeHtml(grades)}</span>
+        </span>
+      </div>`;
     }).filter(Boolean).join('');
 
     const district = (r.district || '').trim();
-    if (!district && !chips) return '';
+    if (!district && !rows) return '';
 
     const districtLine = district
       ? `<p class="district">&#127979; ${escapeHtml(district)}</p>`
       : '';
-    const chipRow = chips ? `<div class="school-chips">${chips}</div>` : '';
-    return `<div class="schools">${districtLine}${chipRow}</div>`;
+    const list = rows
+      ? `<p class="schools-label">Nearby schools</p><div class="school-list">${rows}</div>`
+      : '';
+    return `<div class="schools">${districtLine}${list}</div>`;
   }
 
   function completionHtml(r){
