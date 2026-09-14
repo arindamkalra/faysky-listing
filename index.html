@@ -312,6 +312,86 @@
     line-height:1.5;
     margin:0;
   }
+  /* Anticipated completion date — Upcoming cards only */
+  .card .completion{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.8rem;
+    color:var(--accent-dark);
+    background:#f3ead9;
+    border-radius:6px;
+    padding:6px 10px;
+    margin:0;
+    display:inline-block;
+    align-self:flex-start;
+  }
+  .card .completion strong{ font-weight:700; }
+
+  /* School district + ratings */
+  .card .schools{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+    padding-top:2px;
+  }
+  .card .district{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.8rem;
+    font-weight:600;
+    color:var(--brown);
+    margin:0;
+  }
+  /* Natural widths + wrap: fits one row on normal cards, drops to a second
+     row on the narrowest (280px) card rather than truncating the labels. */
+  .card .school-chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .card .school-chip{
+    flex:0 0 auto;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:4px 8px 4px 4px;
+    font-family:'Open Sans',Arial,sans-serif;
+    background:#fff;
+  }
+  .card .school-score{
+    flex:0 0 auto;           /* badge must never compress — keeps the "/10" intact */
+    display:inline-flex;
+    align-items:baseline;
+    justify-content:center;
+    min-width:30px;
+    height:22px;
+    padding:0 5px;
+    border-radius:11px;
+    font-size:0.78rem;
+    font-weight:700;
+    color:#fff;
+    line-height:22px;
+  }
+  .card .school-score em{
+    font-style:normal;
+    font-size:0.6rem;
+    font-weight:600;
+    opacity:0.85;
+  }
+  .card .school-level{
+    font-size:0.72rem;
+    font-weight:600;
+    color:var(--brown);
+    letter-spacing:0.2px;
+    white-space:nowrap;
+  }
+  /* Rating bands: 8-10 strong, 5-7 average, 1-4 below average */
+  .card .school-high .school-score{ background:#4f9d69; }
+  .card .school-mid  .school-score{ background:#c9a227; }
+  .card .school-low  .school-score{ background:#c4704f; }
+  .card .school-na   .school-score{ background:#b9b3a6; }
+  .card .school-score-na{ min-width:30px; }
+
   .card .changes-btn{
     display:inline-flex;
     align-items:center;
@@ -876,6 +956,64 @@
     return `<div class="card-btns">${zillow}${media}</div>`;
   }
 
+  // Parses a school cell: "Name | Grades | Rating"  (grades + rating optional)
+  function parseSchool(cell){
+    if (!cell) return null;
+    const parts = cell.split('|').map(s => s.trim());
+    const name = parts[0] || '';
+    if (!name) return null;
+    const grades = parts[1] || '';
+    const ratingRaw = (parts[2] || '').replace(/\/\s*10\s*$/, '').trim();
+    const rating = ratingRaw === '' ? null : Number(ratingRaw);
+    return {
+      name,
+      grades,
+      rating: (rating !== null && !isNaN(rating)) ? rating : null
+    };
+  }
+
+  // GreatSchools-style banding: 1-4 below average, 5-7 average, 8-10 above average
+  function ratingTier(rating){
+    if (rating === null) return 'na';
+    if (rating >= 8) return 'high';
+    if (rating >= 5) return 'mid';
+    return 'low';
+  }
+
+  function schoolsHtml(r){
+    const levels = [
+      ['Elementary', r.schoolElem],
+      ['Middle', r.schoolMid],
+      ['High',   r.schoolHigh]
+    ];
+    const chips = levels.map(([label, cell]) => {
+      const s = parseSchool(cell);
+      if (!s) return '';
+      const tier = ratingTier(s.rating);
+      const score = s.rating !== null
+        ? `<span class="school-score">${escapeHtml(String(s.rating))}<em>/10</em></span>`
+        : '<span class="school-score school-score-na">&ndash;</span>';
+      const title = [s.name, s.grades].filter(Boolean).join(' · ');
+      return `<span class="school-chip school-${tier}" title="${escapeHtml(title)}">
+        ${score}<span class="school-level">${escapeHtml(label)}</span>
+      </span>`;
+    }).filter(Boolean).join('');
+
+    const district = (r.district || '').trim();
+    if (!district && !chips) return '';
+
+    const districtLine = district
+      ? `<p class="district">&#127979; ${escapeHtml(district)}</p>`
+      : '';
+    const chipRow = chips ? `<div class="school-chips">${chips}</div>` : '';
+    return `<div class="schools">${districtLine}${chipRow}</div>`;
+  }
+
+  function completionHtml(r){
+    if (!r.completion) return '';
+    return `<p class="completion">&#128197; Est. completion: <strong>${escapeHtml(r.completion)}</strong></p>`;
+  }
+
   function changesHtml(r){
     if (!r.changes) return '';
     const items = r.changes.split(/[;,\n]+/).map(s => s.trim()).filter(Boolean);
@@ -935,6 +1073,7 @@
           <p class="addr">${escapeHtml(r.address)}</p>
           <div class="meta">${propDetails(r)}</div>
           ${r.desc ? `<p class="desc">${escapeHtml(r.desc)}</p>` : ''}
+          ${schoolsHtml(r)}
           ${changesHtml(r)}
           ${cardButtons(r)}
         </div>
@@ -952,7 +1091,9 @@
           ${r.listedPrice ? `<p class="price">${escapeHtml(r.listedPrice)}</p>` : ''}
           <p class="addr">${escapeHtml(r.address)}</p>
           <div class="meta">${propDetails(r)}</div>
+          ${completionHtml(r)}
           ${r.desc ? `<p class="desc">${escapeHtml(r.desc)}</p>` : ''}
+          ${schoolsHtml(r)}
           ${changesHtml(r)}
           ${cardButtons(r)}
         </div>
@@ -1019,6 +1160,11 @@
         mediaLink:   trimmed[statusColIdx + 7] || '',  // col P
         changes:     cols[statusColIdx + 8]    || '',  // col Q — keep raw newlines for split
         desc:        trimmed[statusColIdx + 9] || '',  // col R
+        district:    trimmed[statusColIdx + 10] || '', // col S — school district name
+        schoolElem:  trimmed[statusColIdx + 11] || '', // col T — "Name | Grades | Rating"
+        schoolMid:   trimmed[statusColIdx + 12] || '', // col U — "Name | Grades | Rating"
+        schoolHigh:  trimmed[statusColIdx + 13] || '', // col V — "Name | Grades | Rating"
+        completion:  trimmed[statusColIdx + 14] || '', // col W — anticipated completion date
         zillowLink:  '',
         beds:  trimmed[statusColIdx + 1] || '',
         baths: trimmed[statusColIdx + 2] || '',
