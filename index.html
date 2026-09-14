@@ -956,20 +956,41 @@
     return `<div class="card-btns">${zillow}${media}</div>`;
   }
 
-  // Parses a school cell: "Name | Grades | Rating"  (grades + rating optional)
-  function parseSchool(cell){
-    if (!cell) return null;
-    const parts = cell.split('|').map(s => s.trim());
-    const name = parts[0] || '';
-    if (!name) return null;
-    const grades = parts[1] || '';
-    const ratingRaw = (parts[2] || '').replace(/\/\s*10\s*$/, '').trim();
-    const rating = ratingRaw === '' ? null : Number(ratingRaw);
+  // Normalizes a header for matching: uppercase, all whitespace stripped.
+  // Makes matching immune to the inconsistent spacing in the sheet headers
+  // ("Rating School- P to 5" vs "Rating School - 6 to 8").
+  function normHeader(s){
+    return (s || '').toUpperCase().replace(/\s+/g, '');
+  }
+
+  // Locates the school/completion columns BY HEADER NAME rather than by
+  // position, so inserting or moving sheet columns can't silently break this.
+  function findSchoolCols(headerCells){
+    const norm = headerCells.map(normHeader);
+    const find = pred => norm.findIndex(pred);
+    // For a grade band token ("PTO5"), the name column mentions SCHOOL without
+    // RATING; the rating column mentions RATING.
+    const band = b => ({
+      name:   find(h => h.includes('SCHOOL') && h.includes(b) && !h.includes('RATING')),
+      rating: find(h => h.includes('RATING') && h.includes(b))
+    });
     return {
-      name,
-      grades,
-      rating: (rating !== null && !isNaN(rating)) ? rating : null
+      elem: band('PTO5'),
+      mid:  band('6TO8'),
+      high: band('9TO12'),
+      // Optional — only if a dedicated district column is ever added
+      district:   find(h => h === 'DISTRICT' || h === 'SCHOOLDISTRICT'),
+      completion: find(h => h.includes('COMPLETION'))
     };
+  }
+
+  // Builds one school entry from a name cell + a separate rating cell
+  function makeSchool(name, ratingCell){
+    const n = (name || '').trim();
+    if (!n) return null;
+    const raw = (ratingCell || '').replace(/\/\s*10\s*$/, '').trim();
+    const num = raw === '' ? null : Number(raw);
+    return { name: n, rating: (num !== null && !isNaN(num)) ? num : null };
   }
 
   // GreatSchools-style banding: 1-4 below average, 5-7 average, 8-10 above average
@@ -982,18 +1003,18 @@
 
   function schoolsHtml(r){
     const levels = [
-      ['Elementary', r.schoolElem],
-      ['Middle', r.schoolMid],
-      ['High',   r.schoolHigh]
+      ['Elementary', 'PK-5', r.schoolElem, r.schoolElemRating],
+      ['Middle',     '6-8',  r.schoolMid,  r.schoolMidRating],
+      ['High',       '9-12', r.schoolHigh, r.schoolHighRating]
     ];
-    const chips = levels.map(([label, cell]) => {
-      const s = parseSchool(cell);
+    const chips = levels.map(([label, grades, name, ratingCell]) => {
+      const s = makeSchool(name, ratingCell);
       if (!s) return '';
       const tier = ratingTier(s.rating);
       const score = s.rating !== null
         ? `<span class="school-score">${escapeHtml(String(s.rating))}<em>/10</em></span>`
         : '<span class="school-score school-score-na">&ndash;</span>';
-      const title = [s.name, s.grades].filter(Boolean).join(' · ');
+      const title = `${s.name} · Grades ${grades}`;
       return `<span class="school-chip school-${tier}" title="${escapeHtml(title)}">
         ${score}<span class="school-level">${escapeHtml(label)}</span>
       </span>`;
@@ -1133,6 +1154,7 @@
     let statusColIdx = -1;
     let addrColIdx = -1;
     let headerFound = false;
+    let sCols = null;   // school/completion column indices, found by header name
 
     for (const cols of allRows){
       const trimmed = cols.map(c => (c || '').trim());
@@ -1144,10 +1166,14 @@
         if (addrIdx !== -1 && statIdx !== -1){
           addrColIdx = addrIdx;
           statusColIdx = statIdx;
+          sCols = findSchoolCols(trimmed);
           headerFound = true;
         }
         continue;
       }
+
+      // Reads a cell by absolute index; -1 (column absent) yields ''
+      const at = i => (i >= 0 ? (trimmed[i] || '') : '');
 
       const address = trimmed[addrColIdx] || '';
       if (!address) continue;
@@ -1160,11 +1186,15 @@
         mediaLink:   trimmed[statusColIdx + 7] || '',  // col P
         changes:     cols[statusColIdx + 8]    || '',  // col Q — keep raw newlines for split
         desc:        trimmed[statusColIdx + 9] || '',  // col R
-        district:    trimmed[statusColIdx + 10] || '', // col S — school district name
-        schoolElem:  trimmed[statusColIdx + 11] || '', // col T — "Name | Grades | Rating"
-        schoolMid:   trimmed[statusColIdx + 12] || '', // col U — "Name | Grades | Rating"
-        schoolHigh:  trimmed[statusColIdx + 13] || '', // col V — "Name | Grades | Rating"
-        completion:  trimmed[statusColIdx + 14] || '', // col W — anticipated completion date
+        // Matched by header name (see findSchoolCols) — position-independent
+        district:          at(sCols.district),
+        schoolElem:        at(sCols.elem.name),
+        schoolElemRating:  at(sCols.elem.rating),
+        schoolMid:         at(sCols.mid.name),
+        schoolMidRating:   at(sCols.mid.rating),
+        schoolHigh:        at(sCols.high.name),
+        schoolHighRating:  at(sCols.high.rating),
+        completion:        at(sCols.completion),
         zillowLink:  '',
         beds:  trimmed[statusColIdx + 1] || '',
         baths: trimmed[statusColIdx + 2] || '',
