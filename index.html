@@ -966,21 +966,57 @@
   // Locates the school/completion columns BY HEADER NAME rather than by
   // position, so inserting or moving sheet columns can't silently break this.
   function findSchoolCols(headerCells){
-    const norm = headerCells.map(normHeader);
+    const norm = (headerCells || []).map(normHeader);
     const find = pred => norm.findIndex(pred);
-    // For a grade band token ("PTO5"), the name column mentions SCHOOL without
-    // RATING; the rating column mentions RATING.
+    // Band tokens are the TRAILING grade only ("TO5"/"TO8"/"TO12") so variants
+    // like "P to 5", "PK to 5" or "K to 5" all match. The name column mentions
+    // SCHOOL without RATING; the rating column mentions RATING.
     const band = b => ({
       name:   find(h => h.includes('SCHOOL') && h.includes(b) && !h.includes('RATING')),
       rating: find(h => h.includes('RATING') && h.includes(b))
     });
     return {
-      elem: band('PTO5'),
-      mid:  band('6TO8'),
-      high: band('9TO12'),
+      elem: band('TO5'),
+      mid:  band('TO8'),
+      high: band('TO12'),
       // Optional — only if a dedicated district column is ever added
       district:   find(h => h === 'DISTRICT' || h === 'SCHOOLDISTRICT'),
       completion: find(h => h.includes('COMPLETION'))
+    };
+  }
+
+  // The school headers may not live on the same row as the "Sale Pipeline"
+  // header. Scan every row and keep the first that actually yields matches.
+  function findSchoolColsAnywhere(allRows){
+    let best = null;
+    for (const cols of allRows){
+      const c = findSchoolCols(cols.map(x => (x || '').trim()));
+      const hits = [c.elem.name, c.elem.rating, c.mid.name, c.mid.rating,
+                    c.high.name, c.high.rating, c.completion].filter(i => i >= 0).length;
+      if (hits > 0 && (!best || hits > best.hits)) best = { cols: c, hits };
+      if (best && best.hits >= 6) break;   // full set found, stop early
+    }
+    return best ? best.cols
+                : { elem:{name:-1,rating:-1}, mid:{name:-1,rating:-1},
+                    high:{name:-1,rating:-1}, district:-1, completion:-1 };
+  }
+
+  /* Fallback to the known sheet layout when a header isn't matched.
+     Inventory tab: Pipeline = col I, school block = cols S-X, i.e.
+       S=+10 name P-5   T=+11 rating P-5
+       U=+12 name 6-8   V=+13 rating 6-8
+       W=+14 name 9-12  X=+15 rating 9-12
+     Only fills in slots header-matching failed to find, so renaming a
+     header still takes precedence over this. */
+  function applyColFallback(sCols, statusColIdx){
+    if (statusColIdx < 0) return sCols;
+    const pick = (found, offset) => (found >= 0 ? found : statusColIdx + offset);
+    return {
+      elem: { name: pick(sCols.elem.name, 10), rating: pick(sCols.elem.rating, 11) },
+      mid:  { name: pick(sCols.mid.name,  12), rating: pick(sCols.mid.rating,  13) },
+      high: { name: pick(sCols.high.name, 14), rating: pick(sCols.high.rating, 15) },
+      district: sCols.district,
+      completion: sCols.completion
     };
   }
 
@@ -1154,7 +1190,10 @@
     let statusColIdx = -1;
     let addrColIdx = -1;
     let headerFound = false;
-    let sCols = null;   // school/completion column indices, found by header name
+    // Scan the whole sheet for the school headers — they may not be on the
+    // same row as the "Sale Pipeline" header. Any slot not matched by header
+    // is filled in from the known layout once statusColIdx is known.
+    let sCols = findSchoolColsAnywhere(allRows);
 
     for (const cols of allRows){
       const trimmed = cols.map(c => (c || '').trim());
@@ -1166,7 +1205,7 @@
         if (addrIdx !== -1 && statIdx !== -1){
           addrColIdx = addrIdx;
           statusColIdx = statIdx;
-          sCols = findSchoolCols(trimmed);
+          sCols = applyColFallback(sCols, statusColIdx);
           headerFound = true;
         }
         continue;
@@ -1225,11 +1264,60 @@
       const { active, comingSoon } = parseSheetCsv(csvText);
       renderActive(active);
       renderComingSoon(comingSoon);
+      // Visit the page with ?debug=schools to diagnose column detection
+      if (location.search.includes('debug=schools')) showSchoolDebug(csvText, active, comingSoon);
     } catch (err){
       console.error(err);
       renderActive(FALLBACK_DATA.active);
       renderComingSoon(FALLBACK_DATA.comingSoon);
     }
+  }
+
+  /* Temporary diagnostic — visit /?debug=schools to see what the parser
+     found in the sheet. Safe to delete once the school columns are working. */
+  function showSchoolDebug(csvText, active, comingSoon){
+    const rows = parseCsv(csvText);
+    const cols = findSchoolColsAnywhere(rows);
+    const colName = i => {
+      if (i < 0) return '<span style="color:#c0392b">NOT FOUND</span>';
+      let n = '', x = i;
+      while (x >= 0){ n = String.fromCharCode(65 + (x % 26)) + n; x = Math.floor(x / 26) - 1; }
+      return `<b>col ${n}</b> (index ${i})`;
+    };
+    // Every header-ish cell that mentions SCHOOL or RATING, wherever it appears
+    const seen = [];
+    rows.forEach((r, ri) => r.forEach((c, ci) => {
+      const v = (c || '').trim();
+      if (v && /SCHOOL|RATING|COMPLETION/i.test(v) && v.length < 60 && seen.length < 30)
+        seen.push(`row ${ri}, col ${ci}: "${escapeHtml(v)}"`);
+    }));
+    const sample = active[0] || comingSoon[0];
+    const sampleTxt = sample ? [
+      `address: ${escapeHtml(sample.address)}`,
+      `elem:   "${escapeHtml(sample.schoolElem)}"  rating "${escapeHtml(sample.schoolElemRating)}"`,
+      `mid:    "${escapeHtml(sample.schoolMid)}"  rating "${escapeHtml(sample.schoolMidRating)}"`,
+      `high:   "${escapeHtml(sample.schoolHigh)}"  rating "${escapeHtml(sample.schoolHighRating)}"`,
+      `completion: "${escapeHtml(sample.completion)}"`
+    ].join('<br>') : 'no rows parsed';
+
+    const el = document.createElement('div');
+    el.style.cssText = 'position:fixed;inset:20px;background:#fff;border:3px solid #c0392b;border-radius:10px;padding:20px;overflow:auto;z-index:9999;font:12px/1.6 monospace;box-shadow:0 10px 40px rgba(0,0,0,.3)';
+    el.innerHTML = `
+      <button onclick="this.parentNode.remove()" style="float:right;font-size:18px;cursor:pointer;border:none;background:none">&times;</button>
+      <h3 style="margin:0 0 12px;font-family:sans-serif">School column diagnostic</h3>
+      <p><b>Detected columns</b><br>
+      Elementary name: ${colName(cols.elem.name)}<br>
+      Elementary rating: ${colName(cols.elem.rating)}<br>
+      Middle name: ${colName(cols.mid.name)}<br>
+      Middle rating: ${colName(cols.mid.rating)}<br>
+      High name: ${colName(cols.high.name)}<br>
+      High rating: ${colName(cols.high.rating)}<br>
+      Completion: ${colName(cols.completion)}</p>
+      <p><b>First parsed property</b><br>${sampleTxt}</p>
+      <p><b>Total columns in sheet:</b> ${Math.max(...rows.map(r => r.length))}</p>
+      <p><b>Cells mentioning SCHOOL / RATING / COMPLETION anywhere:</b><br>
+      ${seen.length ? seen.map(escapeHtml).join('<br>') : '<span style="color:#c0392b">NONE FOUND — the headers are not in this sheet/tab</span>'}</p>`;
+    document.body.appendChild(el);
   }
 
   // Renovations modal
