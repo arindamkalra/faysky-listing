@@ -312,6 +312,24 @@
     line-height:1.5;
     margin:0;
   }
+  /* Read more / less — full text is in the DOM, toggled by the .open class */
+  .card .desc .desc-full{ display:none; }
+  .card .desc.open .desc-short{ display:none; }
+  .card .desc.open .desc-full{ display:inline; }
+  .card .desc-toggle{
+    display:inline;
+    background:none;
+    border:none;
+    padding:0;
+    margin-left:4px;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.8rem;
+    font-weight:700;
+    color:var(--accent-dark);
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .card .desc-toggle:hover{ color:var(--accent); }
   /* Anticipated completion date — Upcoming cards only */
   .card .completion{
     font-family:'Open Sans',Arial,sans-serif;
@@ -1084,6 +1102,37 @@
     return `<div class="schools">${districtLine}${list}</div>`;
   }
 
+  // Trims to a word boundary near `max` chars, without cutting mid-word
+  function truncateAt(str, max){
+    const s = (str || '').trim();
+    if (s.length <= max) return null;          // null = no truncation needed
+    const cut = s.slice(0, max);
+    const sp = cut.lastIndexOf(' ');
+    const base = (sp > max * 0.6) ? cut.slice(0, sp) : cut;
+    return base.replace(/[\s.,;:!?-]+$/, '') + '…';
+  }
+
+  const DESC_MAX = 170;
+
+  function descHtml(r){
+    const full = (r.desc || '').trim();
+    if (!full) return '';
+    const short = truncateAt(full, DESC_MAX);
+    if (!short) return `<p class="desc">${escapeHtml(full)}</p>`;
+    // Both variants rendered and toggled via CSS — avoids re-escaping on click
+    return `<p class="desc">
+      <span class="desc-short">${escapeHtml(short)}</span>
+      <span class="desc-full">${escapeHtml(full)}</span>
+      <button type="button" class="desc-toggle" onclick="toggleDesc(this)">Read more</button>
+    </p>`;
+  }
+
+  function toggleDesc(btn){
+    const p = btn.parentNode;
+    const open = p.classList.toggle('open');
+    btn.textContent = open ? 'Read less' : 'Read more';
+  }
+
   function completionHtml(r){
     if (!r.completion) return '';
     return `<p class="completion">&#128197; Est. completion: <strong>${escapeHtml(r.completion)}</strong></p>`;
@@ -1147,7 +1196,7 @@
           ${r.listedPrice ? `<p class="price">${escapeHtml(r.listedPrice)}</p>` : ''}
           <p class="addr">${escapeHtml(r.address)}</p>
           <div class="meta">${propDetails(r)}</div>
-          ${r.desc ? `<p class="desc">${escapeHtml(r.desc)}</p>` : ''}
+          ${descHtml(r)}
           ${schoolsHtml(r)}
           ${changesHtml(r)}
           ${cardButtons(r)}
@@ -1167,7 +1216,7 @@
           <p class="addr">${escapeHtml(r.address)}</p>
           <div class="meta">${propDetails(r)}</div>
           ${completionHtml(r)}
-          ${r.desc ? `<p class="desc">${escapeHtml(r.desc)}</p>` : ''}
+          ${descHtml(r)}
           ${schoolsHtml(r)}
           ${changesHtml(r)}
           ${cardButtons(r)}
