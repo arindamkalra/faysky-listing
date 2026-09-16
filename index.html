@@ -281,11 +281,48 @@
     letter-spacing:0.3px;
   }
   .card a.zillow-btn:hover{ background:var(--accent-dark); }
-  .card-btns{
+  /* Footer holds the changes button + links and is pushed to the bottom, so
+     they line up across cards regardless of how much text sits above. */
+  .card-footer{
     margin-top:auto;
+    padding-top:10px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    align-items:stretch;
+  }
+  .card-btns{
     display:flex;
     gap:8px;
     flex-wrap:wrap;
+  }
+
+  /* Buyer incentives */
+  .card .incentives{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .card .incentive{
+    display:inline-flex;
+    align-items:baseline;
+    gap:5px;
+    background:#f3ead9;
+    border:1px solid #e6d5b4;
+    border-radius:6px;
+    padding:5px 9px;
+    font-family:'Open Sans',Arial,sans-serif;
+  }
+  .card .incentive-val{
+    font-size:0.86rem;
+    font-weight:700;
+    color:var(--accent-dark);
+    white-space:nowrap;
+  }
+  .card .incentive-lbl{
+    font-size:0.68rem;
+    color:#6b5533;
+    line-height:1.2;
   }
   .card-btns a.zillow-btn{ margin-top:0; flex:0 0 auto; }
   .card a.media-btn{
@@ -438,7 +475,7 @@
     letter-spacing:0.3px;
     cursor:pointer;
     transition:border-color .15s, color .15s;
-    margin-top:4px;
+    justify-content:center;
   }
   .card .changes-btn:hover{ border-color:var(--accent); color:var(--accent); }
   /* Modal */
@@ -771,7 +808,7 @@
 <header>
   <h1 class="brand">Fay<span>Sky</span> Homes</h1>
   <p class="sub">Thoughtfully renovated, move-in ready homes.</p>
-  <p class="header-commission"><strong>4% buyer&rsquo;s agent commission</strong></p>
+  <p class="header-commission"><strong>Agents see every home first</strong> &mdash; early access before we list</p>
 </header>
 
 <main>
@@ -868,7 +905,7 @@
 
     <div class="commission-banner">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/></svg>
-      <span>Bring your best buyers to us &mdash; we offer <strong>4% buyer&rsquo;s agent commission</strong></span>
+      <span>Bring your best buyers to us &mdash; we offer <strong>up to 4% buyer&rsquo;s agent commission</strong></span>
     </div>
   </section>
 
@@ -1012,7 +1049,14 @@
       high: band('TO12'),
       // Optional — only if a dedicated district column is ever added
       district:   find(h => h === 'DISTRICT' || h === 'SCHOOLDISTRICT'),
-      completion: find(h => h.includes('COMPLETION'))
+      completion: find(h => h.includes('COMPLETION')),
+      // These sit near the school block and shift whenever a column is
+      // inserted, so match them by header too rather than by offset.
+      desc:       find(h => h.includes('SHORTDESCRIPTION') || h === 'DESCRIPTION'),
+      closing:    find(h => h.includes('CLOSINGCOST')),
+      commission: find(h => h.includes('COMMISSION')),
+      changes:    find(h => h.includes('WORKDONE') || h.includes('RENOVATION') || h === 'CHANGES'),
+      media:      find(h => h.includes('PHOTO') || h.includes('VIDEO') || h.includes('MEDIA'))
     };
   }
 
@@ -1023,13 +1067,15 @@
     for (const cols of allRows){
       const c = findSchoolCols(cols.map(x => (x || '').trim()));
       const hits = [c.elem.name, c.elem.rating, c.mid.name, c.mid.rating,
-                    c.high.name, c.high.rating, c.completion].filter(i => i >= 0).length;
+                    c.high.name, c.high.rating, c.completion,
+                    c.desc, c.closing, c.commission, c.changes, c.media].filter(i => i >= 0).length;
       if (hits > 0 && (!best || hits > best.hits)) best = { cols: c, hits };
-      if (best && best.hits >= 6) break;   // full set found, stop early
+      if (best && best.hits >= 11) break;   // full set found, stop early
     }
     return best ? best.cols
                 : { elem:{name:-1,rating:-1}, mid:{name:-1,rating:-1},
-                    high:{name:-1,rating:-1}, district:-1, completion:-1 };
+                    high:{name:-1,rating:-1}, district:-1, completion:-1,
+                    desc:-1, closing:-1, commission:-1, changes:-1, media:-1 };
   }
 
   /* Fallback to the known sheet layout when a header isn't matched.
@@ -1047,7 +1093,14 @@
       mid:  { name: pick(sCols.mid.name,  12), rating: pick(sCols.mid.rating,  13) },
       high: { name: pick(sCols.high.name, 14), rating: pick(sCols.high.rating, 15) },
       district: sCols.district,
-      completion: sCols.completion
+      completion: sCols.completion,
+      // Legacy offsets: Q=+8 work done, R=+9 short description.
+      // Used only if the header wasn't matched.
+      desc:       pick(sCols.desc,    9),
+      changes:    pick(sCols.changes, 8),
+      media:      pick(sCols.media,   7),
+      closing:    sCols.closing,      // no legacy position — header only
+      commission: sCols.commission
     };
   }
 
@@ -1133,6 +1186,36 @@
     btn.textContent = open ? 'Read less' : 'Read more';
   }
 
+  // Formats a raw sheet value as currency unless it already carries a symbol
+  function money(v){
+    const s = (v || '').trim();
+    if (!s) return '';
+    if (/[$%]/.test(s)) return s;
+    const n = Number(s.replace(/,/g, ''));
+    return isNaN(n) ? s : '$' + n.toLocaleString('en-US');
+  }
+
+  // Formats a rate as a percentage unless it already carries one
+  function pct(v){
+    const s = (v || '').trim();
+    if (!s) return '';
+    if (s.includes('%')) return s;
+    const n = Number(s);
+    if (isNaN(n)) return s;
+    // Sheets may store 4% as 0.04
+    return (n <= 1 ? (n * 100) : n).toLocaleString('en-US', {maximumFractionDigits: 2}) + '%';
+  }
+
+  function incentivesHtml(r){
+    const cc  = money(r.closingCosts);
+    const com = pct(r.commission);
+    if (!cc && !com) return '';
+    const items = [];
+    if (cc)  items.push(`<span class="incentive"><span class="incentive-val">${escapeHtml(cc)}</span><span class="incentive-lbl">closing costs paid</span></span>`);
+    if (com) items.push(`<span class="incentive"><span class="incentive-val">${escapeHtml(com)}</span><span class="incentive-lbl">buyer&rsquo;s agent commission</span></span>`);
+    return `<div class="incentives">${items.join('')}</div>`;
+  }
+
   function completionHtml(r){
     if (!r.completion) return '';
     return `<p class="completion">&#128197; Est. completion: <strong>${escapeHtml(r.completion)}</strong></p>`;
@@ -1196,10 +1279,13 @@
           ${r.listedPrice ? `<p class="price">${escapeHtml(r.listedPrice)}</p>` : ''}
           <p class="addr">${escapeHtml(r.address)}</p>
           <div class="meta">${propDetails(r)}</div>
+          ${incentivesHtml(r)}
           ${descHtml(r)}
           ${schoolsHtml(r)}
-          ${changesHtml(r)}
-          ${cardButtons(r)}
+          <div class="card-footer">
+            ${changesHtml(r)}
+            ${cardButtons(r)}
+          </div>
         </div>
       </div>
     `).join('');
@@ -1216,10 +1302,13 @@
           <p class="addr">${escapeHtml(r.address)}</p>
           <div class="meta">${propDetails(r)}</div>
           ${completionHtml(r)}
+          ${incentivesHtml(r)}
           ${descHtml(r)}
           ${schoolsHtml(r)}
-          ${changesHtml(r)}
-          ${cardButtons(r)}
+          <div class="card-footer">
+            ${changesHtml(r)}
+            ${cardButtons(r)}
+          </div>
         </div>
       </div>
     `).join('');
@@ -1289,9 +1378,12 @@
         address,
         listedPrice: trimmed[statusColIdx + 5] || '',  // col N
         image:       trimmed[statusColIdx + 6] || '',  // col O
-        mediaLink:   trimmed[statusColIdx + 7] || '',  // col P
-        changes:     cols[statusColIdx + 8]    || '',  // col Q — keep raw newlines for split
-        desc:        trimmed[statusColIdx + 9] || '',  // col R
+        mediaLink:   at(sCols.media),
+        // raw (untrimmed) so newlines inside the cell survive for the split
+        changes:     (sCols.changes >= 0 ? (cols[sCols.changes] || '') : ''),
+        desc:        at(sCols.desc),
+        closingCosts: at(sCols.closing),
+        commission:   at(sCols.commission),
         // Matched by header name (see findSchoolCols) — position-independent
         district:          at(sCols.district),
         schoolElem:        at(sCols.elem.name),
