@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rentals | Fay Sky Homes</title>
+<meta name="description" content="Move-in ready rental homes in Fayetteville, Hope Mills and Raeford, NC. Fully renovated, locally managed, customisable.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#f5f4f0;
+    --warm-white:#ffffff;
+    --charcoal:#1a2b3c;
+    --brown:#5b6672;
+    --accent:#b8975a;
+    --accent-dark:#9c7c3d;
+    --green:#4f7a52;
+    --border:#e2ddd0;
+    --shadow: 0 4px 14px rgba(26,43,60,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Georgia','Iowan Old Style', serif;
+    background:var(--cream);
+    color:var(--charcoal);
+    line-height:1.5;
+  }
+  header{
+    background:linear-gradient(135deg,#1a2b3c,#2c4257);
+    color:var(--warm-white);
+    padding:32px 24px 28px;
+    text-align:center;
+  }
+  header .brand{ font-size:2.4rem; letter-spacing:1px; font-weight:600; margin:0; }
+  header .brand span{ color:var(--accent); }
+  header .sub{
+    margin-top:8px;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.95rem;
+    color:#cdd9e3;
+    max-width:560px;
+    margin-left:auto; margin-right:auto;
+  }
+  header .header-pill{
+    margin-top:16px;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.88rem;
+    color:#e8c97a;
+    letter-spacing:0.4px;
+    display:inline-block;
+    border:1px solid rgba(184,151,90,0.4);
+    padding:7px 18px;
+    border-radius:20px;
+  }
+  header .header-pill strong{ color:#f0d68a; font-weight:700; }
+  main{ max-width:1080px; margin:0 auto; padding:48px 24px 80px; }
+  .section-title{ font-size:1.6rem; font-weight:600; margin:0 0 6px; color:var(--charcoal); }
+  .section-sub{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.88rem; color:var(--brown); margin:0 0 24px;
+  }
+  .badge{
+    display:inline-block;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.7rem; letter-spacing:0.5px; text-transform:uppercase;
+    padding:4px 10px; border-radius:20px; font-weight:600;
+    background:#e3f0e6; color:#2f6b3d;
+  }
+
+  /* FEATURES */
+  .trust-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:18px;
+    margin-bottom:48px;
+  }
+  .trust-card{
+    background:var(--warm-white);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:24px 20px 20px;
+    box-shadow:var(--shadow);
+    display:flex; flex-direction:column; align-items:center;
+    text-align:center; gap:12px;
+  }
+  .trust-card .icon{
+    width:48px; height:48px; flex-shrink:0;
+    border-radius:50%;
+    background:#f3ead9; color:var(--accent-dark);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .trust-card .icon svg{ width:24px; height:24px; }
+  .trust-card .trust-title{ font-size:0.95rem; font-weight:600; color:var(--charcoal); margin:0 0 4px; }
+  .trust-card .trust-desc{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.83rem; color:var(--brown); margin:0;
+  }
+
+  /* LISTINGS */
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
+  .card{
+    background:var(--warm-white);
+    border:1px solid var(--border);
+    border-radius:10px;
+    box-shadow:var(--shadow);
+    display:flex; flex-direction:column;
+    overflow:hidden;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(26,43,60,0.12); }
+  .card .card-img-wrap{
+    position:relative; width:100%; height:200px;
+    background:#ddd8ce; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .card .card-img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    position:absolute; top:0; left:0;
+  }
+  .card .card-img-placeholder{
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    color:#9a9080;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.75rem; letter-spacing:0.3px; text-transform:uppercase;
+    z-index:0;
+  }
+  .card .status-badge{
+    position:absolute; top:10px; left:10px;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.7rem; font-weight:700; letter-spacing:0.6px; text-transform:uppercase;
+    padding:4px 10px; border-radius:20px;
+    background:rgba(79,122,82,0.92); color:#fff;
+    backdrop-filter:blur(4px);
+  }
+  .card .status-badge.soon{ background:rgba(184,151,90,0.94); }
+  .card .card-body{
+    padding:16px 18px 18px;
+    display:flex; flex-direction:column; gap:8px; flex:1;
+  }
+  .card .rent{ font-size:1.25rem; font-weight:700; color:var(--accent-dark); margin:0; }
+  .card .rent small{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.78rem; font-weight:600; color:var(--brown);
+  }
+  .card .addr{ font-size:1rem; font-weight:600; color:var(--charcoal); margin:0; line-height:1.4; }
+  .card .meta{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.82rem; color:var(--brown);
+  }
+  .prop-details{ font-weight:600; }
+  .card .avail{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.8rem;
+    color:var(--accent-dark);
+    background:#f3ead9;
+    border-radius:6px;
+    padding:6px 10px;
+    margin:0;
+    display:inline-block;
+    align-self:flex-start;
+  }
+  .card .avail strong{ font-weight:700; }
+  .card .desc{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.83rem; color:var(--brown); line-height:1.5; margin:0;
+  }
+  .card .desc .desc-full{ display:none; }
+  .card .desc.open .desc-short{ display:none; }
+  .card .desc.open .desc-full{ display:inline; }
+  .desc-toggle{
+    display:inline; background:none; border:none; padding:0; margin-left:4px;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.8rem; font-weight:700; color:var(--accent-dark);
+    cursor:pointer; text-decoration:underline;
+  }
+  .desc-toggle:hover{ color:var(--accent); }
+
+  .card-footer{
+    margin-top:auto; padding-top:10px;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .card-btns{ display:flex; gap:8px; flex-wrap:wrap; }
+  .card .tour-btn{
+    flex:1 1 auto;
+    text-align:center;
+    background:var(--accent); color:#fff;
+    border:none;
+    padding:9px 14px; border-radius:6px;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.82rem; font-weight:600; letter-spacing:0.3px;
+    cursor:pointer;
+  }
+  .card .tour-btn:hover{ background:var(--accent-dark); }
+  .card a.pics-btn{
+    flex:0 0 auto;
+    display:inline-block; text-align:center;
+    background:transparent; color:var(--accent);
+    text-decoration:none;
+    padding:9px 14px; border-radius:6px;
+    border:1.5px solid var(--accent);
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.82rem; font-weight:600; letter-spacing:0.3px;
+    transition:background .15s, color .15s;
+  }
+  .card a.pics-btn:hover{ background:var(--accent); color:#fff; }
+
+  .empty-msg, .loading-msg, .error-msg{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.9rem; color:var(--brown);
+    padding:20px; background:var(--warm-white);
+    border:1px dashed var(--border); border-radius:8px;
+  }
+  .error-msg{ color:#a14747; border-color:#e0bcbc; background:#fdf3f3; }
+
+  /* HOW IT WORKS */
+  .howitworks{ margin-top:64px; }
+  .steps-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px;
+  }
+  .step-card{
+    background:var(--warm-white); border:1px solid var(--border);
+    border-radius:10px; padding:24px 20px; box-shadow:var(--shadow);
+  }
+  .step-num{
+    font-family:'Georgia','Iowan Old Style', serif;
+    font-size:1.8rem; color:#c97a6b; margin:0 0 14px;
+  }
+  .step-title{ font-size:1.05rem; font-weight:600; color:var(--charcoal); margin:0 0 12px; }
+  .step-desc{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.88rem; color:var(--brown); margin:0;
+  }
+
+  /* CUSTOMISE CALLOUT */
+  .custom-banner{
+    display:flex; align-items:center; gap:12px;
+    margin-top:28px; padding:16px 20px;
+    background:#f3ead9; border:1px solid #e0ccaa; border-radius:10px;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.92rem; color:#6b5533;
+  }
+  .custom-banner svg{ width:22px; height:22px; flex-shrink:0; color:var(--accent-dark); }
+  .custom-banner strong{ color:var(--accent-dark); }
+
+  /* CONTACT */
+  .contact{
+    margin-top:64px; background:var(--warm-white);
+    border:1px solid var(--border); border-radius:12px;
+    padding:36px 28px; box-shadow:var(--shadow);
+    scroll-margin-top:20px;
+  }
+  .contact-grid{ display:grid; grid-template-columns:1fr 1.3fr; gap:32px; }
+  @media (max-width:680px){ .contact-grid{ grid-template-columns:1fr; } }
+  .contact-info p{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.9rem; color:var(--brown); margin:0 0 16px;
+  }
+  .contact-row{
+    display:flex; align-items:center; gap:10px; margin-bottom:14px;
+    font-family:'Open Sans',Arial,sans-serif; font-size:0.95rem;
+  }
+  .contact-row svg{ width:18px; height:18px; flex-shrink:0; color:var(--accent); }
+  .contact-row a{ color:var(--accent-dark); text-decoration:none; font-weight:600; }
+  .contact-row a:hover{ text-decoration:underline; }
+  .contact-form{ display:flex; flex-direction:column; gap:12px; }
+  .contact-form input, .contact-form textarea, .contact-form select{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.9rem; padding:10px 12px;
+    border:1px solid var(--border); border-radius:6px;
+    background:var(--cream); color:var(--charcoal); resize:vertical;
+  }
+  .contact-form textarea{ min-height:80px; }
+  .contact-form button{
+    align-self:flex-start;
+    background:var(--accent); color:#fff; border:none;
+    padding:11px 22px; border-radius:6px;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.9rem; font-weight:600; cursor:pointer;
+  }
+  .contact-form button:hover{ background:var(--accent-dark); }
+
+  footer{
+    text-align:center; padding:28px 24px 40px;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.78rem; color:var(--brown);
+  }
+
+  @media (max-width:680px){
+    header{ padding:16px 20px 16px; }
+    header .brand{ font-size:1.9rem; }
+    header .sub{ font-size:0.88rem; margin-top:6px; }
+    header .header-pill{ margin-top:10px; padding:5px 14px; font-size:0.82rem; }
+    .trust-grid{
+      display:flex; flex-wrap:nowrap; overflow-x:auto; gap:10px;
+      margin-bottom:20px; padding-bottom:6px;
+      -webkit-overflow-scrolling:touch; scrollbar-width:none;
+    }
+    .trust-grid::-webkit-scrollbar{ display:none; }
+    .trust-card{ flex:0 0 auto; width:140px; padding:14px 10px; gap:8px; }
+    .trust-card .icon{ width:36px; height:36px; }
+    .trust-card .icon svg{ width:18px; height:18px; }
+    .trust-card .trust-title{ font-size:0.75rem; margin:0; line-height:1.25; }
+    .trust-card .trust-desc{ display:none; }
+    main{ padding:24px 16px 60px; }
+    .steps-grid{ grid-template-columns:repeat(4,1fr); gap:8px; }
+    .step-card{ padding:12px 6px; text-align:center; }
+    .step-num{ font-size:1.1rem; margin:0 0 4px; }
+    .step-title{ font-size:0.72rem; margin:0; line-height:1.25; }
+    .step-desc{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1 class="brand">Fay<span>Sky</span> Homes</h1>
+  <p class="sub">Move-in ready rental homes across Fayetteville, Hope Mills and Raeford.</p>
+</header>
+
+<main>
+
+  <div class="trust-grid">
+    <div class="trust-card">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg>
+      </div>
+      <div>
+        <p class="trust-title">Move-in ready</p>
+        <p class="trust-desc">Every home is fully renovated and cleaned before you get the keys &mdash; nothing left half-finished.</p>
+      </div>
+    </div>
+    <div class="trust-card">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
+      </div>
+      <div>
+        <p class="trust-title">Customisable homes</p>
+        <p class="trust-desc">Want a specific upgrade? Tell us. We'll fit it at cost &mdash; you only pay for the system itself.</p>
+      </div>
+    </div>
+    <div class="trust-card">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <div>
+        <p class="trust-title">Local team, quick fixes</p>
+        <p class="trust-desc">A North Carolina company with our own crews. Maintenance is handled by people down the road.</p>
+      </div>
+    </div>
+    <div class="trust-card">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      </div>
+      <div>
+        <p class="trust-title">Transparent pricing</p>
+        <p class="trust-desc">Rent is rent. No surprise admin charges or processing fees buried in the lease.</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="section" id="section-rentals">
+    <h2 class="section-title">Available Rentals <span class="badge" id="countBadge">Updating&hellip;</span></h2>
+    <p class="section-sub">Fully renovated homes ready to move into. Tap through for photos, or request a showing.</p>
+    <div class="grid" id="rentalGrid"><div class="loading-msg">Loading rentals&hellip;</div></div>
+  </section>
+
+  <section class="howitworks">
+    <h2 class="section-title">How Renting With Us Works</h2>
+    <p class="section-sub">Four steps from browsing to keys &mdash; no runaround.</p>
+    <div class="steps-grid">
+      <div class="step-card">
+        <p class="step-num">01.</p>
+        <p class="step-title">Find a Home</p>
+        <p class="step-desc">Browse what's available above and look through the full photo set for any home that interests you.</p>
+      </div>
+      <div class="step-card">
+        <p class="step-num">02.</p>
+        <p class="step-title">Book a Showing</p>
+        <p class="step-desc">Request a viewing and we'll walk the home with you, answer questions, and talk through the lease.</p>
+      </div>
+      <div class="step-card">
+        <p class="step-num">03.</p>
+        <p class="step-title">Apply</p>
+        <p class="step-desc">A straightforward application. We'll be clear upfront about what we need and what the costs are.</p>
+      </div>
+      <div class="step-card">
+        <p class="step-num">04.</p>
+        <p class="step-title">Move In</p>
+        <p class="step-desc">Sign, collect the keys and move into a home that's clean, finished and ready from day one.</p>
+      </div>
+    </div>
+
+    <div class="custom-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      <span>Want something specific &mdash; smart thermostat, security system, accessibility fittings? <strong>We'll install it at cost.</strong> No markup, no service fee. Just ask before you sign.</span>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <h2 class="section-title">Request a Showing</h2>
+    <p class="section-sub">Tell us which home and when suits you. We'll get straight back to you.</p>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <div class="contact-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <a href="tel:+12016965965">+1 (201) 696-5965</a>
+        </div>
+        <p>Happy to answer questions about a specific home, arrange a viewing, or talk through what we can customise before you move in.</p>
+      </div>
+      <form class="contact-form" id="rentalForm">
+        <input type="text" id="rf-name" placeholder="Your name" required>
+        <input type="tel" id="rf-phone" placeholder="Your phone number" required>
+        <select id="rf-property">
+          <option value="">Which property? (optional)</option>
+        </select>
+        <input type="text" id="rf-movein" placeholder="Ideal move-in date (optional)">
+        <textarea id="rf-message" placeholder="Anything else we should know?"></textarea>
+        <button type="submit">Send Request</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  &copy; <span id="year"></span> Fay Sky Homes
+</footer>
+
+<script>
+  /* ============================================================
+     Fay Sky Homes — Rentals
+     Reads the "Rental listings" tab of the Fund Management sheet.
+     Expected columns (matched BY HEADER NAME, so order can change):
+       # | Property | Available Date | Bed | Bath | Sq ft |
+       Monthly Rent | Card Image link | Pictures link | Short Description
+     The sheet must be shared as "Anyone with the link can view".
+     ============================================================ */
+  const SHEET_ID    = "1aTJibmrbfTcnKfuKwUHKy2V7im06pj8G";
+  const RENTAL_GID  = "1730561151";
+  const RENTAL_TAB  = "Rental listings";   // must match the tab name exactly
+
+  /* Two ways to reach the same tab. The gviz endpoint addresses it by NAME,
+     which survives a tab being deleted and recreated (that changes the gid);
+     the export endpoint addresses it by gid. We try name first, then gid, so
+     either one working is enough. */
+  const SOURCES = [
+    { label: 'tab name "' + RENTAL_TAB + '"',
+      url: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(RENTAL_TAB)}` },
+    { label: 'gid ' + RENTAL_GID,
+      url: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${RENTAL_GID}` }
+  ];
+
+  function escapeHtml(str){
+    return (str || "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // Full RFC4180 parser — handles quoted multi-line cells
+  function parseCsv(text){
+    const rows = [];
+    let row = [], cur = '', inQ = false;
+    for (let i = 0; i < text.length; i++){
+      const c = text[i];
+      if (inQ){
+        if (c === '"'){
+          if (text[i+1] === '"'){ cur += '"'; i++; }
+          else inQ = false;
+        } else { cur += c; }
+      } else {
+        if (c === '"'){ inQ = true; }
+        else if (c === ','){ row.push(cur); cur = ''; }
+        else if (c === '\r' && text[i+1] === '\n'){ row.push(cur); cur=''; rows.push(row); row=[]; i++; }
+        else if (c === '\n' || c === '\r'){ row.push(cur); cur=''; rows.push(row); row=[]; }
+        else { cur += c; }
+      }
+    }
+    if (cur !== '' || row.length){ row.push(cur); rows.push(row); }
+    return rows;
+  }
+
+  const normHeader = s => (s || '').toUpperCase().replace(/\s+/g, '');
+
+  // Locate columns by header name so inserting/moving columns can't break this
+  function findCols(headerCells){
+    const norm = (headerCells || []).map(normHeader);
+    const find = pred => norm.findIndex(pred);
+    return {
+      property: find(h => h.includes('PROPERTY') || h === 'ADDRESS'),
+      avail:    find(h => h.includes('AVAILABLE')),
+      bed:      find(h => h.startsWith('BED')),
+      bath:     find(h => h.startsWith('BATH')),
+      sqft:     find(h => h.includes('SQFT') || h.includes('SQUAREFEET')),
+      rent:     find(h => h.includes('RENT')),
+      image:    find(h => h.includes('CARDIMAGE') || h.includes('IMAGE')),
+      pictures: find(h => h.includes('PICTURE') || h.includes('PHOTO')),
+      desc:     find(h => h.includes('DESCRIPTION'))
+    };
+  }
+
+  function headerRowIndex(rows){
+    for (let i = 0; i < rows.length; i++){
+      const c = findCols(rows[i].map(x => (x || '').trim()));
+      if (c.property >= 0 && (c.rent >= 0 || c.bed >= 0)) return i;
+    }
+    return -1;
+  }
+
+  function parseRentalCsv(csvText){
+    const rows = parseCsv(csvText);
+    const hi = headerRowIndex(rows);
+    if (hi < 0) return [];
+    const cols = findCols(rows[hi].map(x => (x || '').trim()));
+    const out = [];
+    for (let i = hi + 1; i < rows.length; i++){
+      const raw = rows[i];
+      const t = raw.map(c => (c || '').trim());
+      const at = j => (j >= 0 ? (t[j] || '') : '');
+      const address = at(cols.property);
+      if (!address) continue;
+      out.push({
+        address,
+        avail:    at(cols.avail),
+        bed:      at(cols.bed),
+        bath:     at(cols.bath),
+        sqft:     at(cols.sqft),
+        rent:     at(cols.rent),
+        image:    at(cols.image),
+        pictures: at(cols.pictures),
+        desc:     at(cols.desc)
+      });
+    }
+    return out;
+  }
+
+  // Google Drive share link -> displayable thumbnail
+  function driveImgUrl(raw){
+    if (!raw) return '';
+    const m = raw.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w600`;
+    const m2 = raw.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (m2) return `https://drive.google.com/thumbnail?id=${m2[1]}&sz=w600`;
+    return raw;
+  }
+
+  function money(v){
+    const s = (v || '').trim();
+    if (!s) return '';
+    if (/[$]/.test(s)) return s;
+    const n = Number(s.replace(/,/g, ''));
+    return isNaN(n) ? s : '$' + n.toLocaleString('en-US');
+  }
+
+  function propDetails(r){
+    const parts = [];
+    if (r.bed)  parts.push(`${escapeHtml(r.bed)} bd`);
+    if (r.bath) parts.push(`${escapeHtml(r.bath)} ba`);
+    if (r.sqft) parts.push(`${escapeHtml(r.sqft)} sqft`);
+    return parts.length ? `<span class="prop-details">${parts.join(' &middot; ')}</span>` : '';
+  }
+
+  // "Available now" if the date has passed or the cell says so
+  function availability(r){
+    const s = (r.avail || '').trim();
+    if (!s) return { now: true, label: 'Available now' };
+    if (/now|immediate|current/i.test(s)) return { now: true, label: 'Available now' };
+
+    /* Only parse strings that are genuinely date-shaped. JS Date is lenient
+       enough to turn "Spring 2027" into Jan 1 2027, which would advertise a
+       precise date nobody promised — free text is passed through verbatim. */
+    const dateLike =
+      /^\d{4}-\d{1,2}-\d{1,2}/.test(s) ||                              // 2026-10-01
+      /^\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}/.test(s) ||                  // 10/01/2026
+      /^[A-Za-z]{3,9}\.?\s+\d{1,2},?\s*\d{4}/.test(s) ||               // Oct 1, 2026
+      /^\d{1,2}\s+[A-Za-z]{3,9}\.?,?\s*\d{4}/.test(s);                 // 1 Oct 2026
+
+    if (dateLike){
+      const d = new Date(s);
+      if (!isNaN(d.getTime())){
+        const today = new Date(); today.setHours(0,0,0,0);
+        if (d <= today) return { now: true, label: 'Available now' };
+        return { now: false, label: 'Available ' + d.toLocaleDateString('en-US',{month:'short', day:'numeric', year:'numeric'}) };
+      }
+    }
+    return { now: false, label: 'Available ' + s };
+  }
+
+  const DESC_MAX = 170;
+  function truncateAt(str, max){
+    const s = (str || '').trim();
+    if (s.length <= max) return null;
+    const cut = s.slice(0, max);
+    const sp = cut.lastIndexOf(' ');
+    const base = (sp > max * 0.6) ? cut.slice(0, sp) : cut;
+    return base.replace(/[\s.,;:!?-]+$/, '') + '…';
+  }
+  function descHtml(r){
+    const full = (r.desc || '').trim();
+    if (!full) return '';
+    const short = truncateAt(full, DESC_MAX);
+    if (!short) return `<p class="desc">${escapeHtml(full)}</p>`;
+    return `<p class="desc">
+      <span class="desc-short">${escapeHtml(short)}</span>
+      <span class="desc-full">${escapeHtml(full)}</span>
+      <button type="button" class="desc-toggle" onclick="toggleDesc(this)">Read more</button>
+    </p>`;
+  }
+  function toggleDesc(btn){
+    const p = btn.parentNode;
+    const open = p.classList.toggle('open');
+    btn.textContent = open ? 'Read less' : 'Read more';
+  }
+
+  function cardImgWrap(r, availLabel, isNow){
+    const url = driveImgUrl(r.image);
+    const placeholder = `<div class="card-img-placeholder">
+      <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 28L28 10L48 28V48H36V36H20V48H8V28Z" fill="#b8a898" stroke="#9a9080" stroke-width="1.5" stroke-linejoin="round"/>
+        <rect x="22" y="36" width="12" height="12" rx="1" fill="#9a9080"/>
+        <rect x="12" y="30" width="8" height="7" rx="1" fill="#c8bfb0"/>
+        <rect x="36" y="30" width="8" height="7" rx="1" fill="#c8bfb0"/>
+      </svg>
+      <span>Photo coming soon</span>
+    </div>`;
+    const img = url
+      ? `<img class="card-img" src="${escapeHtml(url)}" alt="${escapeHtml(r.address)}" loading="lazy" onerror="this.style.display='none'">`
+      : '';
+    return `<div class="card-img-wrap">${placeholder}${img}<span class="status-badge ${isNow ? '' : 'soon'}">${escapeHtml(isNow ? 'Available now' : 'Coming soon')}</span></div>`;
+  }
+
+  function renderRentals(rows){
+    const grid  = document.getElementById('rentalGrid');
+    const badge = document.getElementById('countBadge');
+    if (!rows.length){
+      grid.innerHTML = '<div class="empty-msg">No rentals available right now. Check back soon, or call us and we\'ll let you know what\'s coming.</div>';
+      badge.textContent = 'None right now';
+      return;
+    }
+    badge.textContent = rows.length + (rows.length === 1 ? ' home' : ' homes');
+
+    grid.innerHTML = rows.map((r, i) => {
+      const a = availability(r);
+      const rent = money(r.rent);
+      const pics = r.pictures
+        ? `<a class="pics-btn" target="_blank" rel="noopener" href="${escapeHtml(r.pictures)}">&#128247; Pictures</a>`
+        : '';
+      return `
+      <div class="card">
+        ${cardImgWrap(r, a.label, a.now)}
+        <div class="card-body">
+          ${rent ? `<p class="rent">${escapeHtml(rent)} <small>/ month</small></p>` : ''}
+          <p class="addr">${escapeHtml(r.address)}</p>
+          <div class="meta">${propDetails(r)}</div>
+          <p class="avail">&#128197; <strong>${escapeHtml(a.label)}</strong></p>
+          ${descHtml(r)}
+          <div class="card-footer">
+            <div class="card-btns">
+              <button type="button" class="tour-btn" onclick="requestShowing(${i})">Request a Showing</button>
+              ${pics}
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+    // Populate the form's property dropdown from the live listings
+    const sel = document.getElementById('rf-property');
+    sel.innerHTML = '<option value="">Which property? (optional)</option>' +
+      rows.map(r => `<option value="${escapeHtml(r.address)}">${escapeHtml(r.address)}</option>`).join('');
+    window.__rentals = rows;
+  }
+
+  function requestShowing(i){
+    const r = (window.__rentals || [])[i];
+    const sel = document.getElementById('rf-property');
+    if (r && sel) sel.value = r.address;
+    document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => { const n = document.getElementById('rf-name'); if (n) n.focus(); }, 500);
+  }
+
+  /* detail is composed internally and may contain markup; anything drawn from
+     the sheet is escaped at the point it's added to the message. */
+  function showLoadError(detail){
+    document.getElementById('rentalGrid').innerHTML =
+      `<div class="error-msg"><strong>Couldn't load rentals.</strong><br>${detail}<br><br>
+       <span style="font-size:0.85em">Call (201) 696-5965 and we'll tell you what's available.</span></div>`;
+    document.getElementById('countBadge').textContent = 'Unavailable';
+  }
+
+  async function loadRentals(){
+    // Opened straight from disk: the browser blocks the cross-origin request
+    // to Google, so the page can only work once served over http(s).
+    if (location.protocol === 'file:'){
+      showLoadError('This page is open from your computer rather than the web. ' +
+                    'Google blocks the data request in that mode — view it at ' +
+                    'listings.faysky.com/rentals.html instead.');
+      return;
+    }
+    const problems = [];
+    for (const src of SOURCES){
+      try{
+        const res = await fetch(src.url, { cache: 'no-store' });
+        if (!res.ok){ problems.push(src.label + ': HTTP ' + res.status); continue; }
+        const text = await res.text();
+        if (/^\s*</.test(text)){ problems.push(src.label + ': got a sign-in page, not data'); continue; }
+        const rows = parseRentalCsv(text);
+        if (!rows.length){
+          const first = (parseCsv(text)[0] || []).filter(Boolean).slice(0, 8).join(' | ');
+          problems.push(src.label + ': loaded, but no listings found. First row: ' + escapeHtml(first || '(empty)'));
+          continue;
+        }
+        renderRentals(rows);            // success — stop here
+        return;
+      } catch (err){
+        console.error(src.label, err);
+        problems.push(src.label + ': blocked by the browser (' + (err && err.message ? err.message : err) + ')');
+      }
+    }
+
+    // Both routes failed — report what each one said
+    showLoadError(
+      'Tried two ways to reach the sheet and both failed:<br>&bull; ' +
+      problems.join('<br>&bull; ') +
+      '<br><br>Most likely the spreadsheet is not shared publicly (Share → General access → ' +
+      'Anyone with the link → Viewer), or the tab name / gid has changed.'
+    );
+  }
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+  loadRentals();
+
+  document.getElementById('rentalForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const name  = document.getElementById('rf-name').value.trim();
+    const phone = document.getElementById('rf-phone').value.trim();
+    const prop  = document.getElementById('rf-property').value.trim();
+    const when  = document.getElementById('rf-movein').value.trim();
+    const msg   = document.getElementById('rf-message').value.trim();
+    const subject = encodeURIComponent('Rental enquiry' + (prop ? ' — ' + prop : '') + ' from ' + name);
+    const body = encodeURIComponent(
+      (prop ? 'Property: ' + prop + '\n' : '') +
+      (when ? 'Preferred move-in: ' + when + '\n' : '') +
+      (msg ? '\n' + msg + '\n' : '') +
+      '\nFrom: ' + name + ' (' + phone + ')'
+    );
+    window.location.href = `mailto:manager@ncrei.org?subject=${subject}&body=${body}`;
+  });
+</script>
+
+</body>
+</html>

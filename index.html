@@ -342,6 +342,25 @@
     transition:background .15s, color .15s;
   }
   .card a.media-btn:hover{ background:var(--accent); color:#fff; }
+  /* Inspection & appraisal documents — navy to read as a trust signal
+     rather than another gold marketing link */
+  .card a.docs-btn{
+    flex:0 0 auto;
+    display:inline-block;
+    text-align:center;
+    background:transparent;
+    color:var(--charcoal);
+    text-decoration:none;
+    padding:8px 14px;
+    border-radius:6px;
+    border:1.5px solid #c8d2da;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.82rem;
+    font-weight:600;
+    letter-spacing:0.3px;
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .card a.docs-btn:hover{ background:var(--charcoal); color:#fff; border-color:var(--charcoal); }
   .card .desc{
     font-family:'Open Sans',Arial,sans-serif;
     font-size:0.83rem;
@@ -1017,11 +1036,28 @@
     return parts.length ? `<span class="prop-details">${parts.join(' &middot; ')}</span>` : '';
   }
 
+  /* Normalizes a Google Drive link so it opens in-browser.
+     Folder links already behave; a bare file id or an /uc?id= download link
+     is rewritten to /file/d/<id>/view so it previews instead of downloading. */
+  function driveDocUrl(raw){
+    const s = (raw || '').trim();
+    if (!s) return '';
+    if (/\/drive\/folders\//.test(s)) return s;          // folder — leave alone
+    if (/\/file\/d\//.test(s)) return s;                 // already a preview link
+    const m = s.match(/[?&]id=([a-zA-Z0-9_-]+)/);        // /uc?id= or /open?id=
+    if (m) return `https://drive.google.com/file/d/${m[1]}/view`;
+    return s;                                            // any other URL as-is
+  }
+
   function cardButtons(r, forceZillowSearch){
     const zUrl = forceZillowSearch ? zillowSearchUrl(r.address) : (r.zillowLink || zillowSearchUrl(r.address));
     const zillow = `<a class="zillow-btn" target="_blank" rel="noopener" href="${escapeHtml(zUrl)}">View on Zillow</a>`;
     const media = r.mediaLink ? `<a class="media-btn" target="_blank" rel="noopener" href="${escapeHtml(r.mediaLink)}">&#127916; Photos &amp; Videos</a>` : '';
-    return `<div class="card-btns">${zillow}${media}</div>`;
+    const docsUrl = driveDocUrl(r.docsLink);
+    const docs = docsUrl
+      ? `<a class="docs-btn" target="_blank" rel="noopener" href="${escapeHtml(docsUrl)}" title="Inspection report and appraisal">&#128196; Inspection &amp; Appraisal</a>`
+      : '';
+    return `<div class="card-btns">${zillow}${media}${docs}</div>`;
   }
 
   // Normalizes a header for matching: uppercase, all whitespace stripped.
@@ -1056,7 +1092,9 @@
       closing:    find(h => h.includes('CLOSINGCOST')),
       commission: find(h => h.includes('COMMISSION')),
       changes:    find(h => h.includes('WORKDONE') || h.includes('RENOVATION') || h === 'CHANGES'),
-      media:      find(h => h.includes('PHOTO') || h.includes('VIDEO') || h.includes('MEDIA'))
+      media:      find(h => h.includes('PHOTO') || h.includes('VIDEO') || h.includes('MEDIA')),
+      // Drive folder holding the inspection + appraisal reports
+      docs:       find(h => h.includes('DOC') || h.includes('REPORT') || h.includes('APPRAISAL'))
     };
   }
 
@@ -1075,7 +1113,7 @@
     return best ? best.cols
                 : { elem:{name:-1,rating:-1}, mid:{name:-1,rating:-1},
                     high:{name:-1,rating:-1}, district:-1, completion:-1,
-                    desc:-1, closing:-1, commission:-1, changes:-1, media:-1 };
+                    desc:-1, closing:-1, commission:-1, changes:-1, media:-1, docs:-1 };
   }
 
   /* Fallback to the known sheet layout when a header isn't matched.
@@ -1100,7 +1138,8 @@
       changes:    pick(sCols.changes, 8),
       media:      pick(sCols.media,   7),
       closing:    sCols.closing,      // no legacy position — header only
-      commission: sCols.commission
+      commission: sCols.commission,
+      docs:       sCols.docs
     };
   }
 
@@ -1384,6 +1423,7 @@
         desc:        at(sCols.desc),
         closingCosts: at(sCols.closing),
         commission:   at(sCols.commission),
+        docsLink:     at(sCols.docs),
         // Matched by header name (see findSchoolCols) — position-independent
         district:          at(sCols.district),
         schoolElem:        at(sCols.elem.name),
