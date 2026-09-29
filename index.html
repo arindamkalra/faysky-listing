@@ -1066,7 +1066,7 @@
     const media = r.mediaLink ? `<a class="media-btn" target="_blank" rel="noopener" href="${escapeHtml(r.mediaLink)}">&#127916; Photos &amp; Videos</a>` : '';
     const docsUrl = driveDocUrl(r.docsLink);
     const docs = docsUrl
-      ? `<a class="docs-btn" target="_blank" rel="noopener" href="${escapeHtml(docsUrl)}" title="Inspection report and appraisal">Inspection</a>`
+      ? `<a class="docs-btn" target="_blank" rel="noopener" href="${escapeHtml(docsUrl)}" title="Inspection report and appraisal">&#128196; Reports</a>`
       : '';
     return `<div class="card-btns">${zillow}${media}${docs}</div>`;
   }
