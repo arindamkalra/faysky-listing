@@ -71,11 +71,15 @@
   }
 
   /* FEATURES */
+  /* Four features, one row. */
   .trust-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    grid-template-columns:repeat(4,1fr);
     gap:18px;
     margin-bottom:48px;
+  }
+  @media (max-width:900px){
+    .trust-grid{ grid-template-columns:repeat(2,1fr); }
   }
   .trust-card{
     background:var(--warm-white);
@@ -461,24 +465,6 @@
       <div>
         <p class="trust-title">Customisable homes</p>
         <p class="trust-desc">Want a specific upgrade? Tell us. We'll fit it at cost &mdash; you only pay for the system itself.</p>
-      </div>
-    </div>
-    <div class="trust-card">
-      <div class="icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      </div>
-      <div>
-        <p class="trust-title">Local team, quick fixes</p>
-        <p class="trust-desc">A North Carolina company with our own crews. Maintenance is handled by people down the road.</p>
-      </div>
-    </div>
-    <div class="trust-card">
-      <div class="icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-      </div>
-      <div>
-        <p class="trust-title">Transparent pricing</p>
-        <p class="trust-desc">Rent is rent. No surprise admin charges or processing fees buried in the lease.</p>
       </div>
     </div>
     <div class="trust-card">
