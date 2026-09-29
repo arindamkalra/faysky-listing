@@ -296,6 +296,19 @@
     gap:8px;
     flex-wrap:wrap;
   }
+  /* Each button takes an equal share of the row and shrinks rather than
+     claiming its natural width, so Zillow + Inspection sit on one line.
+     A third button still wraps gracefully. */
+  /* flex-basis:auto keeps each button's natural width as the starting point,
+     so two fit one row and grow to fill it, while a third wraps instead of
+     shrinking under its own label. min-width is a readability floor. */
+  .card-btns > a{
+    flex:1 1 auto;
+    min-width:96px;
+    padding-left:8px;
+    padding-right:8px;
+    white-space:nowrap;
+  }
 
   /* Buyer incentives */
   .card .incentives{
@@ -324,9 +337,8 @@
     color:#6b5533;
     line-height:1.2;
   }
-  .card-btns a.zillow-btn{ margin-top:0; flex:0 0 auto; }
+  .card-btns a.zillow-btn{ margin-top:0; }
   .card a.media-btn{
-    flex:0 0 auto;
     display:inline-block;
     text-align:center;
     background:transparent;
@@ -345,7 +357,6 @@
   /* Inspection & appraisal documents — navy to read as a trust signal
      rather than another gold marketing link */
   .card a.docs-btn{
-    flex:0 0 auto;
     display:inline-block;
     text-align:center;
     background:transparent;
@@ -1055,7 +1066,7 @@
     const media = r.mediaLink ? `<a class="media-btn" target="_blank" rel="noopener" href="${escapeHtml(r.mediaLink)}">&#127916; Photos &amp; Videos</a>` : '';
     const docsUrl = driveDocUrl(r.docsLink);
     const docs = docsUrl
-      ? `<a class="docs-btn" target="_blank" rel="noopener" href="${escapeHtml(docsUrl)}" title="Inspection report and appraisal">&#128196; Inspection &amp; Appraisal</a>`
+      ? `<a class="docs-btn" target="_blank" rel="noopener" href="${escapeHtml(docsUrl)}" title="Inspection report and appraisal">Inspection</a>`
       : '';
     return `<div class="card-btns">${zillow}${media}${docs}</div>`;
   }
