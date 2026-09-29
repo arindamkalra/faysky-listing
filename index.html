@@ -1139,9 +1139,15 @@
       media:      pick(sCols.media,   7),
       closing:    sCols.closing,      // no legacy position — header only
       commission: sCols.commission,
-      docs:       sCols.docs
+      // Documents / reports link. Header match wins so the column can be moved;
+      // if the header isn't recognised we fall back to column AB (index 27),
+      // which is where it lives in the Inventory tab today.
+      docs:       (sCols.docs >= 0 ? sCols.docs : COL_AB_DOCS)
     };
   }
+
+  // Zero-based index of column AB  (A-Z = 0-25, AA = 26, AB = 27)
+  const COL_AB_DOCS = 27;
 
   // Builds one school entry from a name cell + a separate rating cell
   function makeSchool(name, ratingCell){
