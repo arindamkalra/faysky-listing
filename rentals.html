@@ -178,6 +178,81 @@
   }
   .desc-toggle:hover{ color:var(--accent); }
 
+  /* ---- Nearby schools ---- */
+  .card .schools{ display:flex; flex-direction:column; gap:7px; padding-top:2px; }
+  .card .schools-label{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.68rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.8px; color:#b0a898; margin:0;
+  }
+  .card .school-list{ display:flex; flex-direction:column; gap:6px; }
+  .card .school-row{ display:flex; align-items:flex-start; gap:8px; }
+  .card .school-score{
+    flex:0 0 auto;
+    display:inline-flex; align-items:baseline; justify-content:center;
+    min-width:32px; height:21px; padding:0 5px;
+    border-radius:11px;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.76rem; font-weight:700; color:#fff; line-height:21px;
+  }
+  .card .school-score em{ font-style:normal; font-size:0.58rem; font-weight:600; opacity:0.85; }
+  .card .school-info{ display:flex; flex-direction:column; min-width:0; }
+  .card .school-name{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.78rem; font-weight:600; color:var(--charcoal); line-height:1.35;
+  }
+  .card .school-grades{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.68rem; color:var(--brown); line-height:1.35;
+  }
+  .card .school-score.school-high{ background:#4f9d69; }
+  .card .school-score.school-mid { background:#c9a227; }
+  .card .school-score.school-low { background:#c4704f; }
+  .card .school-score.school-na  { background:#b9b3a6; }
+
+  /* ---- Filter bar ---- */
+  .filters{
+    background:var(--warm-white);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:16px 18px;
+    box-shadow:var(--shadow);
+    margin-bottom:22px;
+    display:flex; align-items:flex-end; gap:14px; flex-wrap:wrap;
+  }
+  .filter-field{ display:flex; flex-direction:column; gap:5px; }
+  .filter-field label{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.68rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.8px; color:#b0a898;
+  }
+  .filters select{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.88rem; padding:9px 12px;
+    border:1px solid var(--border); border-radius:7px;
+    background:var(--cream); color:var(--charcoal);
+    min-width:140px; cursor:pointer;
+  }
+  .filters select:focus{ outline:none; border-color:var(--accent); background:#fff; }
+  .filter-clear{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.82rem; font-weight:600;
+    background:none; border:none; color:var(--accent-dark);
+    cursor:pointer; text-decoration:underline; padding:10px 4px;
+  }
+  .filter-clear:hover{ color:var(--accent); }
+  .filter-count{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.82rem; color:var(--brown);
+    margin-left:auto; padding-bottom:10px;
+  }
+  @media (max-width:680px){
+    .filters{ gap:10px; padding:14px; }
+    .filters select{ min-width:0; width:100%; }
+    .filter-field{ flex:1 1 44%; }
+    .filter-count{ margin-left:0; flex-basis:100%; padding-bottom:0; }
+  }
+
   .card-footer{
     margin-top:auto; padding-top:10px;
     display:flex; flex-direction:column; gap:8px;
@@ -232,6 +307,35 @@
   .step-desc{
     font-family:'Open Sans',Arial,sans-serif;
     font-size:0.88rem; color:var(--brown); margin:0;
+  }
+
+  /* TENANT OFFERS */
+  .offers{
+    display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:28px;
+  }
+  @media (max-width:680px){ .offers{ grid-template-columns:1fr; } }
+  .offer{
+    background:var(--warm-white);
+    border:1px solid var(--border);
+    border-left:4px solid var(--accent);
+    border-radius:10px;
+    padding:22px 24px;
+    box-shadow:var(--shadow);
+  }
+  .offer-tag{
+    display:inline-block;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:1.2px;
+    color:var(--accent-dark); background:#f3ead9;
+    padding:4px 11px; border-radius:20px; margin-bottom:12px;
+  }
+  .offer h3{
+    font-size:1.12rem; font-weight:600; color:var(--charcoal);
+    margin:0 0 9px; line-height:1.35;
+  }
+  .offer p{
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.88rem; color:var(--brown); line-height:1.6; margin:0;
   }
 
   /* CUSTOMISE CALLOUT */
@@ -359,11 +463,65 @@
         <p class="trust-desc">Rent is rent. No surprise admin charges or processing fees buried in the lease.</p>
       </div>
     </div>
+    <div class="trust-card">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="17" r="4"/><path d="M10 14l9-9"/><path d="M15.5 8.5l2.5 2.5"/><path d="M18.5 5.5l2.5 2.5"/></svg>
+      </div>
+      <div>
+        <p class="trust-title">Rent to own</p>
+        <p class="trust-desc">Rent now, buy later &mdash; a share of what you pay each month goes toward owning the home.</p>
+      </div>
+    </div>
+    <div class="trust-card">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div>
+        <p class="trust-title">Free lease break</p>
+        <p class="trust-desc">Life changes. Need to leave early? Break your lease without the usual penalty.</p>
+      </div>
+    </div>
   </div>
 
   <section class="section" id="section-rentals">
     <h2 class="section-title">Available Rentals <span class="badge" id="countBadge">Updating&hellip;</span></h2>
     <p class="section-sub">Fully renovated homes ready to move into. Tap through for photos, or request a showing.</p>
+
+    <div class="filters" id="filterBar" style="display:none;">
+      <div class="filter-field">
+        <label for="f-bed">Bedrooms</label>
+        <select id="f-bed">
+          <option value="">Any</option>
+          <option value="1">1+</option>
+          <option value="2">2+</option>
+          <option value="3">3+</option>
+          <option value="4">4+</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="f-bath">Bathrooms</label>
+        <select id="f-bath">
+          <option value="">Any</option>
+          <option value="1">1+</option>
+          <option value="1.5">1.5+</option>
+          <option value="2">2+</option>
+          <option value="3">3+</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="f-rent">Monthly rent</label>
+        <select id="f-rent">
+          <option value="">Any price</option>
+          <option value="0-1200">Under $1,200</option>
+          <option value="1200-1500">$1,200 &ndash; $1,500</option>
+          <option value="1500-2000">$1,500 &ndash; $2,000</option>
+          <option value="2000-">$2,000+</option>
+        </select>
+      </div>
+      <button type="button" class="filter-clear" id="f-clear">Clear filters</button>
+      <span class="filter-count" id="filterCount"></span>
+    </div>
+
     <div class="grid" id="rentalGrid"><div class="loading-msg">Loading rentals&hellip;</div></div>
   </section>
 
@@ -390,6 +548,30 @@
         <p class="step-num">04.</p>
         <p class="step-title">Move In</p>
         <p class="step-desc">Sign, collect the keys and move into a home that's clean, finished and ready from day one.</p>
+      </div>
+    </div>
+
+    <div class="offers">
+      <div class="offer">
+        <div class="offer-tag">Rent to own</div>
+        <h3>Renting today, owning tomorrow</h3>
+        <p>
+          If you'd rather be buying than renting, talk to us before you sign. On a rent-to-own
+          arrangement a portion of every month's rent is credited toward the purchase of the home,
+          and the price is agreed upfront &mdash; so the longer you stay, the closer you get.
+          You get to live in the home first and decide properly, without the pressure of
+          committing to a mortgage on day one.
+        </p>
+      </div>
+      <div class="offer">
+        <div class="offer-tag">Free lease break</div>
+        <h3>No penalty if life changes</h3>
+        <p>
+          A job moves. Family needs you elsewhere. Most landlords charge two or three months'
+          rent to walk away &mdash; we don't. Give us reasonable notice and you can end your
+          lease early without a break fee. We'd rather you stayed because the home is right,
+          not because leaving is expensive.
+        </p>
       </div>
     </div>
 
@@ -494,7 +676,15 @@
       rent:     find(h => h.includes('RENT')),
       image:    find(h => h.includes('CARDIMAGE') || h.includes('IMAGE')),
       pictures: find(h => h.includes('PICTURE') || h.includes('PHOTO')),
-      desc:     find(h => h.includes('DESCRIPTION'))
+      desc:     find(h => h.includes('DESCRIPTION')),
+      // School columns — band token is the trailing grade only ("TO5"/"TO8"/
+      // "TO12") so "P to 5", "PK to 5" and "K to 5" all match.
+      elemName:   find(h => h.includes('SCHOOL') && h.includes('TO5')  && !h.includes('RATING')),
+      elemRating: find(h => h.includes('RATING') && h.includes('TO5')),
+      midName:    find(h => h.includes('SCHOOL') && h.includes('TO8')  && !h.includes('RATING')),
+      midRating:  find(h => h.includes('RATING') && h.includes('TO8')),
+      highName:   find(h => h.includes('SCHOOL') && h.includes('TO12') && !h.includes('RATING')),
+      highRating: find(h => h.includes('RATING') && h.includes('TO12'))
     };
   }
 
@@ -527,7 +717,13 @@
         rent:     at(cols.rent),
         image:    at(cols.image),
         pictures: at(cols.pictures),
-        desc:     at(cols.desc)
+        desc:     at(cols.desc),
+        schoolElem:       at(cols.elemName),
+        schoolElemRating: at(cols.elemRating),
+        schoolMid:        at(cols.midName),
+        schoolMidRating:  at(cols.midRating),
+        schoolHigh:       at(cols.highName),
+        schoolHighRating: at(cols.highRating)
       });
     }
     return out;
@@ -611,6 +807,49 @@
     btn.textContent = open ? 'Read less' : 'Read more';
   }
 
+  /* ---- Nearby schools (same treatment as the sales page) ---- */
+  function makeSchool(name, ratingCell){
+    const n = (name || '').trim();
+    if (!n) return null;
+    const raw = (ratingCell || '').replace(/\/\s*10\s*$/, '').trim();
+    const num = raw === '' ? null : Number(raw);
+    return { name: n, rating: (num !== null && !isNaN(num)) ? num : null };
+  }
+
+  // GreatSchools banding: 8-10 above average, 5-7 average, 1-4 below
+  function ratingTier(rating){
+    if (rating === null) return 'na';
+    if (rating >= 8) return 'high';
+    if (rating >= 5) return 'mid';
+    return 'low';
+  }
+
+  function schoolsHtml(r){
+    const levels = [
+      ['Elementary', 'PK-5', r.schoolElem, r.schoolElemRating],
+      ['Middle',     '6-8',  r.schoolMid,  r.schoolMidRating],
+      ['High',       '9-12', r.schoolHigh, r.schoolHighRating]
+    ];
+    const rows = levels.map(([label, grades, name, ratingCell]) => {
+      const s = makeSchool(name, ratingCell);
+      if (!s) return '';
+      const tier = ratingTier(s.rating);
+      const score = s.rating !== null
+        ? `<span class="school-score school-${tier}">${escapeHtml(String(s.rating))}<em>/10</em></span>`
+        : `<span class="school-score school-na">&ndash;</span>`;
+      return `<div class="school-row">
+        ${score}
+        <span class="school-info">
+          <span class="school-name">${escapeHtml(s.name)}</span>
+          <span class="school-grades">${escapeHtml(label)} &middot; Grades ${escapeHtml(grades)}</span>
+        </span>
+      </div>`;
+    }).filter(Boolean).join('');
+    if (!rows) return '';
+    return `<div class="schools"><p class="schools-label">Nearby schools</p>
+      <div class="school-list">${rows}</div></div>`;
+  }
+
   function cardImgWrap(r, availLabel, isNow){
     const url = driveImgUrl(r.image);
     const placeholder = `<div class="card-img-placeholder">
@@ -628,15 +867,85 @@
     return `<div class="card-img-wrap">${placeholder}${img}<span class="status-badge ${isNow ? '' : 'soon'}">${escapeHtml(isNow ? 'Available now' : 'Coming soon')}</span></div>`;
   }
 
+  /* ---- Filtering ---- */
+  // Pulls a number out of sheet values like "3.0", "2.5 ba", "1,450"
+  function num(v){
+    const n = parseFloat(String(v || '').replace(/[^0-9.]/g, ''));
+    return isNaN(n) ? null : n;
+  }
+
+  function matchesFilters(r){
+    const bed  = document.getElementById('f-bed').value;
+    const bath = document.getElementById('f-bath').value;
+    const rent = document.getElementById('f-rent').value;
+
+    if (bed){
+      const b = num(r.bed);
+      if (b === null || b < parseFloat(bed)) return false;
+    }
+    if (bath){
+      const b = num(r.bath);
+      if (b === null || b < parseFloat(bath)) return false;
+    }
+    if (rent){
+      const [lo, hi] = rent.split('-');
+      const v = num(r.rent);
+      if (v === null) return false;                       // unpriced hidden when filtering
+      if (lo && v < parseFloat(lo)) return false;
+      if (hi && v >= parseFloat(hi)) return false;
+    }
+    return true;
+  }
+
+  function applyFilters(){
+    const all = window.__allRentals || [];
+    const shown = all.filter(matchesFilters);
+    const active = ['f-bed','f-bath','f-rent'].some(id => document.getElementById(id).value);
+
+    document.getElementById('filterCount').textContent =
+      active ? `Showing ${shown.length} of ${all.length}` : '';
+
+    drawCards(shown, active);
+  }
+
+  function clearFilters(){
+    ['f-bed','f-bath','f-rent'].forEach(id => { document.getElementById(id).value = ''; });
+    applyFilters();
+  }
+
   function renderRentals(rows){
-    const grid  = document.getElementById('rentalGrid');
     const badge = document.getElementById('countBadge');
+    window.__allRentals = rows;
+
     if (!rows.length){
-      grid.innerHTML = '<div class="empty-msg">No rentals available right now. Check back soon, or call us and we\'ll let you know what\'s coming.</div>';
+      document.getElementById('rentalGrid').innerHTML =
+        '<div class="empty-msg">No rentals available right now. Check back soon, or call us and we\'ll let you know what\'s coming.</div>';
       badge.textContent = 'None right now';
       return;
     }
     badge.textContent = rows.length + (rows.length === 1 ? ' home' : ' homes');
+    document.getElementById('filterBar').style.display = '';
+
+    ['f-bed','f-bath','f-rent'].forEach(id =>
+      document.getElementById(id).addEventListener('change', applyFilters));
+    document.getElementById('f-clear').addEventListener('click', clearFilters);
+
+    // Property dropdown on the enquiry form lists every home, not just matches
+    const sel = document.getElementById('rf-property');
+    sel.innerHTML = '<option value="">Which property? (optional)</option>' +
+      rows.map(r => `<option value="${escapeHtml(r.address)}">${escapeHtml(r.address)}</option>`).join('');
+
+    drawCards(rows, false);
+  }
+
+  function drawCards(rows, filtering){
+    const grid = document.getElementById('rentalGrid');
+    if (!rows.length){
+      grid.innerHTML = '<div class="empty-msg">No homes match those filters. ' +
+        '<button type="button" class="filter-clear" onclick="clearFilters()">Clear filters</button></div>';
+      return;
+    }
+    window.__rentals = rows;   // requestShowing() indexes into the visible set
 
     grid.innerHTML = rows.map((r, i) => {
       const a = availability(r);
@@ -653,6 +962,7 @@
           <div class="meta">${propDetails(r)}</div>
           <p class="avail">&#128197; <strong>${escapeHtml(a.label)}</strong></p>
           ${descHtml(r)}
+          ${schoolsHtml(r)}
           <div class="card-footer">
             <div class="card-btns">
               <button type="button" class="tour-btn" onclick="requestShowing(${i})">Request a Showing</button>
@@ -662,12 +972,6 @@
         </div>
       </div>`;
     }).join('');
-
-    // Populate the form's property dropdown from the live listings
-    const sel = document.getElementById('rf-property');
-    sel.innerHTML = '<option value="">Which property? (optional)</option>' +
-      rows.map(r => `<option value="${escapeHtml(r.address)}">${escapeHtml(r.address)}</option>`).join('');
-    window.__rentals = rows;
   }
 
   function requestShowing(i){
