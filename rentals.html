@@ -337,6 +337,24 @@
     font-family:'Open Sans',Arial,sans-serif;
     font-size:0.88rem; color:var(--brown); line-height:1.6; margin:0;
   }
+  .offer-list{
+    list-style:none; counter-reset:offer; margin:14px 0 0; padding:0;
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .offer-list li{
+    counter-increment:offer;
+    position:relative; padding-left:30px;
+    font-family:'Open Sans',Arial,sans-serif;
+    font-size:0.86rem; color:var(--brown); line-height:1.55;
+  }
+  .offer-list li::before{
+    content:counter(offer);
+    position:absolute; left:0; top:1px;
+    width:20px; height:20px; border-radius:50%;
+    background:#f3ead9; color:var(--accent-dark);
+    font-size:0.7rem; font-weight:700; line-height:20px; text-align:center;
+  }
+  .offer-list strong{ color:var(--charcoal); font-weight:700; }
 
   /* CUSTOMISE CALLOUT */
   .custom-banner{
@@ -556,12 +574,14 @@
         <div class="offer-tag">Rent to own</div>
         <h3>Renting today, owning tomorrow</h3>
         <p>
-          If you'd rather be buying than renting, talk to us before you sign. On a rent-to-own
-          arrangement a portion of every month's rent is credited toward the purchase of the home,
-          and the price is agreed upfront &mdash; so the longer you stay, the closer you get.
-          You get to live in the home first and decide properly, without the pressure of
-          committing to a mortgage on day one.
+          If you'd rather be buying than renting, talk to us before you sign. You live in the
+          home first and decide properly &mdash; without committing to a mortgage on day one.
         </p>
+        <ol class="offer-list">
+          <li><strong>Rent that counts.</strong> A share of every month's rent is credited toward buying the home.</li>
+          <li><strong>Price locked upfront.</strong> Your purchase price is agreed at the start, so it doesn't move while you rent.</li>
+          <li><strong>We cover full closing costs.</strong> When you're ready to close, the closing costs are on us.</li>
+        </ol>
       </div>
       <div class="offer">
         <div class="offer-tag">Free lease break</div>
