@@ -1023,10 +1023,19 @@
    .../edit?gid=1493260937).
    ============================================================ */
 
-  const SHEET_ID = "1aTJibmrbfTcnKfuKwUHKy2V7im06pj8G";
-  const INVENTORY_GID = "1450567019";
-  const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${INVENTORY_GID}`;
-  // To fall back to embedded snapshot data instead, set SHEET_CSV_URL = "";
+  const SHEET_ID      = "1uRR4IZaqn5nLMKHUq8UyGfvnZfSxMyLorvjBx9D2nJw";
+  const INVENTORY_TAB = "Sales Listings";   // must match the tab name exactly (case-sensitive)
+
+  /* Addressed by tab NAME rather than gid: gids are specific to a single
+     spreadsheet, so they break the moment the data moves to a new file.
+     The name survives that. The no-gid export (first tab) is a last resort. */
+  const SOURCES = [
+    { label: 'tab name "' + INVENTORY_TAB + '"',
+      url: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(INVENTORY_TAB)}` },
+    { label: 'first tab',
+      url: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv` }
+  ];
+  const SHEET_CSV_URL = SOURCES[0].url;   // kept for the guard below
 
   const FALLBACK_DATA = { lastUpdated: "", active: [], comingSoon: [], wip: [] };
 
@@ -1473,20 +1482,38 @@
       renderComingSoon(FALLBACK_DATA.comingSoon);
       return;
     }
-    try{
-      const res = await fetch(SHEET_CSV_URL, { cache: 'no-store' });
-      if (!res.ok) throw new Error('Fetch failed: ' + res.status);
-      const csvText = await res.text();
-      const { active, comingSoon } = parseSheetCsv(csvText);
-      renderActive(active);
-      renderComingSoon(comingSoon);
-      // Visit the page with ?debug=schools to diagnose column detection
-      if (location.search.includes('debug=schools')) showSchoolDebug(csvText, active, comingSoon);
-    } catch (err){
-      console.error(err);
-      renderActive(FALLBACK_DATA.active);
-      renderComingSoon(FALLBACK_DATA.comingSoon);
+    // Try each source in turn; the first that yields listings wins
+    const problems = [];
+    for (const src of SOURCES){
+      try{
+        const res = await fetch(src.url, { cache: 'no-store' });
+        if (!res.ok){ problems.push(`${src.label}: HTTP ${res.status}`); continue; }
+        const csvText = await res.text();
+        if (/^\s*</.test(csvText)){
+          problems.push(`${src.label}: got a sign-in page, not data`); continue;
+        }
+        const { active, comingSoon } = parseSheetCsv(csvText);
+        if (!active.length && !comingSoon.length){
+          problems.push(`${src.label}: loaded, but no listings matched`); continue;
+        }
+        renderActive(active);
+        renderComingSoon(comingSoon);
+        // Visit the page with ?debug=schools to diagnose column detection
+        if (location.search.includes('debug=schools')) showSchoolDebug(csvText, active, comingSoon);
+        return;
+      } catch (err){
+        console.error(src.label, err);
+        problems.push(`${src.label}: blocked by the browser (${err && err.message ? err.message : err})`);
+      }
     }
+
+    console.error('Could not load listings:', problems);
+    const msg = '<div class="error-msg"><strong>Couldn\'t load listings.</strong><br>&bull; ' +
+      problems.join('<br>&bull; ') +
+      '<br><br>Check the spreadsheet is shared as <em>Anyone with the link &rarr; Viewer</em>, ' +
+      'and that the tab is named <em>' + INVENTORY_TAB + '</em>.</div>';
+    document.getElementById('activeGrid').innerHTML = msg;
+    document.getElementById('comingGrid').innerHTML = msg;
   }
 
   /* Temporary diagnostic — visit /?debug=schools to see what the parser

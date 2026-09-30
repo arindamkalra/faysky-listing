@@ -625,19 +625,15 @@
        Monthly Rent | Card Image link | Pictures link | Short Description
      The sheet must be shared as "Anyone with the link can view".
      ============================================================ */
-  const SHEET_ID    = "1aTJibmrbfTcnKfuKwUHKy2V7im06pj8G";
-  const RENTAL_GID  = "1730561151";
-  const RENTAL_TAB  = "Rental listings";   // must match the tab name exactly
+  const SHEET_ID   = "1uRR4IZaqn5nLMKHUq8UyGfvnZfSxMyLorvjBx9D2nJw";
+  const RENTAL_TAB = "Rental Listings";   // must match the tab name exactly (case-sensitive)
 
-  /* Two ways to reach the same tab. The gviz endpoint addresses it by NAME,
-     which survives a tab being deleted and recreated (that changes the gid);
-     the export endpoint addresses it by gid. We try name first, then gid, so
-     either one working is enough. */
+  /* Addressed by tab NAME rather than gid: gids belong to one specific
+     spreadsheet, so they break as soon as the data moves to a new file.
+     The name survives that. */
   const SOURCES = [
     { label: 'tab name "' + RENTAL_TAB + '"',
-      url: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(RENTAL_TAB)}` },
-    { label: 'gid ' + RENTAL_GID,
-      url: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${RENTAL_GID}` }
+      url: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(RENTAL_TAB)}` }
   ];
 
   function escapeHtml(str){
