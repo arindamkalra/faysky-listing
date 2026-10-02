@@ -380,7 +380,7 @@
     padding:36px 28px; box-shadow:var(--shadow);
     scroll-margin-top:20px;
   }
-  .contact-grid{ display:grid; grid-template-columns:1fr 1.3fr; gap:32px; }
+  .contact-grid{ display:grid; grid-template-columns:1fr 1.3fr; gap:32px; align-items:start; }
   @media (max-width:680px){ .contact-grid{ grid-template-columns:1fr; } }
   .contact-info p{
     font-family:'Open Sans',Arial,sans-serif;
@@ -411,9 +411,10 @@
   .contact-form button:hover{ background:var(--accent-dark); }
 
   /* Booking CTA (replaces the old enquiry form) */
+  /* Top-aligned so it starts on the same line as the contact column beside it */
   .booking{
     display:flex; flex-direction:column; align-items:flex-start;
-    justify-content:center; gap:14px;
+    justify-content:flex-start; gap:14px;
   }
   .booking-lead{
     font-family:'Open Sans',Arial,sans-serif;
@@ -631,7 +632,7 @@
         <a class="booking-btn" href="https://cal.com/sky-rei-llc-bchwca/30min" target="_blank" rel="noopener">
           &#128197; Book a Showing
         </a>
-        <p class="booking-note">Opens our booking calendar. Prefer to talk first? Call <a href="tel:+19103902910">(910) 390-2910</a>.</p>
+        <p class="booking-note">Opens our booking calendar in a new tab.</p>
       </div>
     </div>
   </section>
