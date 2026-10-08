@@ -752,14 +752,32 @@
   }
 
   // Google Drive share link -> displayable thumbnail
-  function driveImgUrl(raw){
+  // Extracts the Drive file id from any of the share-link shapes
+  function driveFileId(raw){
     if (!raw) return '';
     const m = raw.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    if (m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w600`;
+    if (m) return m[1];
     const m2 = raw.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-    if (m2) return `https://drive.google.com/thumbnail?id=${m2[1]}&sz=w600`;
-    return raw;
+    if (m2) return m2[1];
+    return '';
   }
+
+  /* Primary image URL. lh3.googleusercontent.com is Google's image CDN and is
+     currently the reliable way to hotlink Drive images — the older
+     /thumbnail endpoint rate-limits once a page loads ~10+ images, which is
+     why every photo failed at once. */
+  function driveImgUrl(raw){
+    if (!raw) return '';
+    const id = driveFileId(raw);
+    return id ? `https://lh3.googleusercontent.com/d/${id}=w600` : raw;
+  }
+
+  // Tried automatically if the CDN URL fails, before giving up to the placeholder
+  function driveImgFallback(raw){
+    const id = driveFileId(raw);
+    return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w600` : '';
+  }
+
 
   function money(v){
     const s = (v || '').trim();
@@ -884,7 +902,7 @@
       <span>Photo coming soon</span>
     </div>`;
     const img = url
-      ? `<img class="card-img" src="${escapeHtml(url)}" alt="${escapeHtml(r.address)}" ${idx < 3 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async" onerror="this.style.display='none'">`
+      ? `<img class="card-img" src="${escapeHtml(url)}" data-alt="${escapeHtml(driveImgFallback(r.image))}" alt="${escapeHtml(r.address)}" ${idx < 3 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async" onerror="if(!this.dataset.fb &amp;&amp; this.dataset.alt){this.dataset.fb=1;this.src=this.dataset.alt;}else{this.style.display='none';}">`
       : '';
     return `<div class="card-img-wrap">${placeholder}${img}<span class="status-badge ${isNow ? '' : 'soon'}">${escapeHtml(isNow ? 'Available now' : 'Coming soon')}</span></div>`;
   }
