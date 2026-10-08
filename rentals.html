@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FaySky Rentals</title>
 <meta name="description" content="Move-in ready rental homes in Fayetteville, Hope Mills and Raeford, NC. Fully renovated, locally managed, customisable.">
+<link rel="preconnect" href="https://drive.google.com">
+<link rel="dns-prefetch" href="https://drive.google.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -870,7 +872,7 @@
       <div class="school-list">${rows}</div></div>`;
   }
 
-  function cardImgWrap(r, availLabel, isNow){
+  function cardImgWrap(r, availLabel, isNow, idx){
     const url = driveImgUrl(r.image);
     const placeholder = `<div class="card-img-placeholder">
       <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -882,7 +884,7 @@
       <span>Photo coming soon</span>
     </div>`;
     const img = url
-      ? `<img class="card-img" src="${escapeHtml(url)}" alt="${escapeHtml(r.address)}" loading="lazy" onerror="this.style.display='none'">`
+      ? `<img class="card-img" src="${escapeHtml(url)}" alt="${escapeHtml(r.address)}" ${idx < 3 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async" onerror="this.style.display='none'">`
       : '';
     return `<div class="card-img-wrap">${placeholder}${img}<span class="status-badge ${isNow ? '' : 'soon'}">${escapeHtml(isNow ? 'Available now' : 'Coming soon')}</span></div>`;
   }
@@ -969,7 +971,7 @@
         : '';
       return `
       <div class="card">
-        ${cardImgWrap(r, a.label, a.now)}
+        ${cardImgWrap(r, a.label, a.now, i)}
         <div class="card-body">
           ${rent ? `<p class="rent">${escapeHtml(rent)} <small>/ month</small></p>` : ''}
           <p class="addr">${escapeHtml(r.address)}</p>

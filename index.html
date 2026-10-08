@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fay Sky Homes</title>
+<link rel="preconnect" href="https://drive.google.com">
+<link rel="dns-prefetch" href="https://drive.google.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -1305,7 +1307,7 @@
     return raw; // already a direct URL
   }
 
-  function cardImgWrap(r, badgeClass, badgeLabel){
+  function cardImgWrap(r, badgeClass, badgeLabel, idx){
     const url = driveImgUrl(r.image);
     const placeholder = `<div class="card-img-placeholder">
       <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1329,7 +1331,7 @@
       <span>Photo coming soon</span>
     </div>`;
     const img = url
-      ? `<img class="card-img" src="${escapeHtml(url)}" alt="${escapeHtml(r.address)}" loading="lazy" onerror="this.style.display='none'">`
+      ? `<img class="card-img" src="${escapeHtml(url)}" alt="${escapeHtml(r.address)}" ${idx < 3 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async" onerror="this.style.display='none'">`
       : '';
     return `<div class="card-img-wrap">${placeholder}${img}<span class="status-badge ${escapeHtml(badgeClass)}">${badgeLabel}</span></div>`;
   }
@@ -1337,9 +1339,9 @@
   function renderActive(rows){
     const grid = document.getElementById('activeGrid');
     if (!rows.length){ grid.innerHTML = '<div class="empty-msg">No active listings right now. Check back soon.</div>'; return; }
-    grid.innerHTML = rows.map(r => `
+    grid.innerHTML = rows.map((r, idx) => `
       <div class="card">
-        ${cardImgWrap(r, 'for-sale', 'For Sale')}
+        ${cardImgWrap(r, 'for-sale', 'For Sale', idx)}
         <div class="card-body">
           ${r.listedPrice ? `<p class="price">${escapeHtml(r.listedPrice)}</p>` : ''}
           <p class="addr">${escapeHtml(r.address)}</p>
@@ -1359,9 +1361,9 @@
   function renderComingSoon(rows){
     const grid = document.getElementById('comingGrid');
     if (!rows.length){ grid.innerHTML = '<div class="empty-msg">No upcoming listings right now.</div>'; return; }
-    grid.innerHTML = rows.map(r => `
+    grid.innerHTML = rows.map((r, idx) => `
       <div class="card">
-        ${cardImgWrap(r, 'upcoming', 'Upcoming')}
+        ${cardImgWrap(r, 'upcoming', 'Upcoming', idx)}
         <div class="card-body">
           ${r.listedPrice ? `<p class="price">${escapeHtml(r.listedPrice)}</p>` : ''}
           <p class="addr">${escapeHtml(r.address)}</p>
