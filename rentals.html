@@ -264,8 +264,9 @@
     display:flex; flex-direction:column; gap:8px;
   }
   .card-btns{ display:flex; gap:8px; flex-wrap:wrap; }
+  /* Primary action takes its own row; Pictures and Walkthrough share the next */
   .card .tour-btn{
-    flex:1 1 auto;
+    flex:1 1 100%;
     display:inline-block;
     text-align:center;
     background:var(--accent); color:#fff;
@@ -277,18 +278,24 @@
     cursor:pointer;
   }
   .card .tour-btn:hover{ background:var(--accent-dark); }
-  .card a.pics-btn{
-    flex:0 0 auto;
+  .card a.pics-btn,
+  .card a.video-btn{
+    flex:1 1 0;
+    min-width:0;
     display:inline-block; text-align:center;
-    background:transparent; color:var(--accent);
+    background:transparent;
     text-decoration:none;
-    padding:9px 14px; border-radius:6px;
-    border:1.5px solid var(--accent);
+    padding:9px 8px; border-radius:6px;
     font-family:'Open Sans',Arial,sans-serif;
-    font-size:0.82rem; font-weight:600; letter-spacing:0.3px;
-    transition:background .15s, color .15s;
+    font-size:0.8rem; font-weight:600; letter-spacing:0.2px;
+    white-space:nowrap;
+    transition:background .15s, color .15s, border-color .15s;
   }
+  .card a.pics-btn{ color:var(--accent); border:1.5px solid var(--accent); }
   .card a.pics-btn:hover{ background:var(--accent); color:#fff; }
+  /* Video reads as a distinct action, not another gold link */
+  .card a.video-btn{ color:var(--charcoal); border:1.5px solid #c8d2da; }
+  .card a.video-btn:hover{ background:var(--charcoal); color:#fff; border-color:var(--charcoal); }
 
   .empty-msg, .loading-msg, .error-msg{
     font-family:'Open Sans',Arial,sans-serif;
@@ -699,6 +706,7 @@
       image:    find(h => h.includes('CARDIMAGE') || h.includes('IMAGE')),
       pictures: find(h => h.includes('PICTURE') || h.includes('PHOTO')),
       desc:     find(h => h.includes('DESCRIPTION')),
+      video:    find(h => h.includes('VIDEO')),
       // School columns — band token is the trailing grade only ("TO5"/"TO8"/
       // "TO12") so "P to 5", "PK to 5" and "K to 5" all match.
       elemName:   find(h => h.includes('SCHOOL') && h.includes('TO5')  && !h.includes('RATING')),
@@ -740,6 +748,7 @@
         image:    at(cols.image),
         pictures: at(cols.pictures),
         desc:     at(cols.desc),
+        video:    at(cols.video),
         schoolElem:       at(cols.elemName),
         schoolElemRating: at(cols.elemRating),
         schoolMid:        at(cols.midName),
@@ -778,6 +787,16 @@
     return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w600` : '';
   }
 
+
+  /* Drive video link -> the /view player page, so it opens in Drive's
+     viewer rather than downloading. Folder and non-Drive links pass through. */
+  function driveVideoUrl(raw){
+    const t = (raw || '').trim();
+    if (!t) return '';
+    if (/\/file\/d\//.test(t)) return t.replace(/\/(view|preview|edit)\b.*$/, '/view');
+    const m = t.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    return m ? `https://drive.google.com/file/d/${m[1]}/view` : t;
+  }
 
   function money(v){
     const s = (v || '').trim();
@@ -987,6 +1006,10 @@
       const pics = r.pictures
         ? `<a class="pics-btn" target="_blank" rel="noopener" href="${escapeHtml(r.pictures)}">&#128247; Pictures</a>`
         : '';
+      const vurl = driveVideoUrl(r.video);
+      const video = vurl
+        ? `<a class="video-btn" target="_blank" rel="noopener" href="${escapeHtml(vurl)}" title="Walkthrough video">&#127909; Walkthrough</a>`
+        : '';
       return `
       <div class="card">
         ${cardImgWrap(r, a.label, a.now, i)}
@@ -1000,7 +1023,7 @@
           <div class="card-footer">
             <div class="card-btns">
               <a class="tour-btn" href="${escapeHtml(bookingUrl(r))}" target="_blank" rel="noopener">Request a Showing</a>
-              ${pics}
+              ${pics}${video}
             </div>
           </div>
         </div>
